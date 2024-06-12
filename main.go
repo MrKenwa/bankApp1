@@ -1,8 +1,26 @@
 package main
 
-import "fmt"
+import (
+	"bankApp1/config"
+	"bankApp1/dbConnector"
+	"fmt"
+	"log"
+)
 
 func main() {
-	fmt.Println("Hello World")
-	fmt.Println("Second line")
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	} else {
+		log.Println("Loaded config")
+	}
+
+	sqlDB, err := dbConnector.ConnectToDB(cfg)
+	if err != nil {
+		log.Fatalf("Error connecting to DB: %v", err)
+	} else {
+		log.Println("Connected to DB")
+	}
+	db := &dbConnector.DataBase{DB: sqlDB}
+	fmt.Printf("%#v\n", db)
 }
