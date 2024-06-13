@@ -9,7 +9,7 @@ type DBOps interface {
 	Beginx() (*sqlx.Tx, error)
 	Select(dest interface{}, query string, args ...interface{}) error
 	Get(dest interface{}, query string, args ...interface{}) error
-	QueryRow(dest interface{}, query string, args ...interface{}) *sql.Row
+	QueryRow(query string, args ...interface{}) *sql.Row
 	Exec(query string, args ...interface{}) (sql.Result, error)
 	Close() error
 }
@@ -30,7 +30,7 @@ func (d *DataBase) Get(dest interface{}, query string, args ...interface{}) erro
 	return d.DB.Get(dest, query, args...)
 }
 
-func (d *DataBase) QueryRow(dest interface{}, query string, args ...interface{}) *sql.Row {
+func (d *DataBase) QueryRow(query string, args ...interface{}) *sql.Row {
 	return d.DB.QueryRow(query, args...)
 }
 

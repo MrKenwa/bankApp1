@@ -10,7 +10,7 @@ import (
 type txKey struct{}
 
 type TxManager struct {
-	db dbConnector.DataBase
+	db dbConnector.DBOps
 }
 
 func (m *TxManager) Do(ctx context.Context, fn func(ctx context.Context) error) error {
@@ -37,10 +37,10 @@ func (m *TxManager) injectTx(ctx context.Context, tx *sqlx.Tx) context.Context {
 	return context.WithValue(ctx, txKey{}, tx)
 }
 
-func (m *TxManager) EnjectTXOrDB(ctx context.Context) (*sqlx.Tx, error) {
-	tx, ok := ctx.Value(txKey{}).(*sqlx.Tx)
+func (m *TxManager) ExtractTXOrDB(ctx context.Context) (dbConnector.DBOps, error) {
+	tx, ok := ctx.Value(txKey{}).(dbConnector.DBOps)
 	if !ok {
-		return //TODO вернуть DBOps
+		return m.db, nil
 	}
 	return tx, nil
 }

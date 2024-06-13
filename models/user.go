@@ -13,3 +13,13 @@ type User struct {
 	CreatedAt      time.Time  `db:"created_at"`
 	DeletedAt      *time.Time `db:"deleted_at"`
 }
+
+type ManyUsers []User
+
+type UserFilter struct {
+	IDs         []UserID
+	Names       []string
+	Lastnames   []string
+	Patronymics []string
+	Emails      []string
+}
