@@ -6,7 +6,7 @@ type User struct {
 	UserID         UserID     `db:"id"`
 	Name           string     `db:"name"`
 	Lastname       string     `db:"lastname"`
-	Patronymic     *string    `db:"patronymic"`
+	Patronymic     string     `db:"patronymic"`
 	Email          string     `db:"email"`
 	Password       string     `db:"password"`
 	PassportNumber string     `db:"passport_number"`

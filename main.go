@@ -3,7 +3,8 @@ package main
 import (
 	"bankApp1/config"
 	"bankApp1/dbConnector"
-	"fmt"
+	"bankApp1/txManager"
+	"context"
 	"log"
 )
 
@@ -22,5 +23,33 @@ func main() {
 		log.Println("Connected to DB")
 	}
 	db := &dbConnector.DataBase{DB: sqlDB}
-	fmt.Printf("%#v\n", db)
+	mng := txManager.NewTxManager(db)
+	ctx := context.Background()
+
+	// ТЕСТЫ
+
+	//userRep := userRepo.NewUserRepo(mng)
+	//user := &models.User{
+	//	Name:           "Vasya",
+	//	Lastname:       "Pupkin",
+	//	Patronymic:     "Vtoroi",
+	//	Email:          "www@www.com",
+	//	Password:       "1111",
+	//	PassportNumber: "1111",
+	//	CreatedAt:      time.Time{},
+	//	DeletedAt:      nil,
+	//}
+	//if id, err := userRep.Create(ctx, user); err != nil {
+	//	log.Fatalf("Error creating user: %v", err)
+	//} else {
+	//	fmt.Println(id)
+	//}
+
+	//Get User
+	//filter := models.UserFilter{IDs: []models.UserID{3}}
+	//if user, err := userRep.Get(ctx, filter); err != nil {
+	//	log.Fatalf("Error getting users: %v", err)
+	//} else {
+	//	log.Printf("Found user: %v", user)
+	//}
 }

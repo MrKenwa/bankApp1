@@ -2,15 +2,13 @@ package sqlQueries
 
 const (
 	UserTable            = "users"
-	UserIDColumnName     = "id"
+	IDColumnName         = "id"
 	NameColumnName       = "name"
-	LastNameColumnName   = "last_name"
+	LastNameColumnName   = "lastname"
 	PatronymicColumnName = "patronymic"
 	EmailColumnName      = "email"
 	PasswordColumnName   = "password"
 	PassportColumnName   = "passport_number"
-	CreatedAtColumnName  = "created_at"
-	DeletedAtColumnName  = "deleted_at"
 )
 
 var (
@@ -24,7 +22,7 @@ var (
 		CreatedAtColumnName,
 	}
 	GetUserColumns = []string{
-		UserIDColumnName,
+		IDColumnName,
 		NameColumnName,
 		LastNameColumnName,
 		PatronymicColumnName,
@@ -32,5 +30,6 @@ var (
 		PasswordColumnName,
 		PassportColumnName,
 		CreatedAtColumnName,
+		DeletedAtColumnName,
 	}
 )

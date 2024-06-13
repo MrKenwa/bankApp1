@@ -12,10 +12,10 @@ import (
 )
 
 type UserRepo struct {
-	manager txManager.TxManager
+	manager *txManager.TxManager
 }
 
-func NewUserRepo(mng txManager.TxManager) *UserRepo {
+func NewUserRepo(mng *txManager.TxManager) *UserRepo {
 	return &UserRepo{mng}
 }
 
@@ -114,7 +114,7 @@ func (r *UserRepo) getConds(filter models.UserFilter) sq.And {
 
 	if len(filter.IDs) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.UserIDColumnName: filter.IDs,
+			sqlQueries.IDColumnName: filter.IDs,
 		})
 	}
 	if len(filter.Names) != 0 {
