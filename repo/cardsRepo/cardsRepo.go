@@ -21,6 +21,7 @@ func NewCardsRepo(manager txManager.TxManager) *CardsRepo {
 
 func (r *CardsRepo) Create(ctx context.Context, c models.Card) (models.CardID, error) {
 	query, args, err := sq.Insert(sqlQueries.CardTable).
+		Columns(sqlQueries.InsertCardColumns...).
 		Values(
 			c.CardNumber,
 			c.UserID,
@@ -110,7 +111,7 @@ func (r *CardsRepo) getConds(filter models.CardFilter) sq.And {
 
 	if len(filter.IDs) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.UserIDColumnName: filter.IDs,
+			sqlQueries.CardIDColumnName: filter.IDs,
 		})
 	}
 	if len(filter.Numbers) != 0 {

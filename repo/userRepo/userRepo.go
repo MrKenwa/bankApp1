@@ -16,7 +16,7 @@ type UserRepo struct {
 }
 
 func NewUserRepo(mng *txManager.TxManager) *UserRepo {
-	return &UserRepo{mng}
+	return &UserRepo{manager: mng}
 }
 
 func (r *UserRepo) Create(ctx context.Context, u *models.User) (models.UserID, error) {

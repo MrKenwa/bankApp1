@@ -4,7 +4,6 @@ const (
 	CardTable            = "cards"
 	CardIDColumnName     = "card_id"
 	CardNumberColumnName = "card_number"
-	UserIDColumnName     = "user_id"
 	CardTypeColumnName   = "card_type"
 	PinCodeColumnName    = "pin_code"
 )
