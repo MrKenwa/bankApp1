@@ -59,7 +59,7 @@ func (r *DepositRepo) Get(ctx context.Context, filter models.DepositFilter) (mod
 	return deposits[0], nil
 }
 
-func (r *DepositRepo) GetMany(ctx context.Context, filter models.DepositFilter) ([]models.Deposit, error) {
+func (r *DepositRepo) GetMany(ctx context.Context, filter models.DepositFilter) (models.ManyDeposits, error) {
 	conds := r.getConds(filter)
 
 	query, args, err := sq.Select(sqlQueries.GetDepositColumns...).
@@ -110,4 +110,26 @@ func (r *DepositRepo) getConds(filter models.DepositFilter) sq.And {
 		sqlQueries.DeletedAtColumnName: nil,
 	})
 	return sb
+}
+
+func (r *DepositRepo) Delete(ctx context.Context, id models.DepositID) error {
+	query, args, err := sq.Update(sqlQueries.DepositTable).
+		Set(sqlQueries.DeletedAtColumnName, time.Now()).
+		Where(sq.Eq{
+			sqlQueries.DepositIDColumnName: id,
+		}).
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	t, err := r.manager.ExtractTXOrDB(ctx)
+	if err != nil {
+		return err
+	}
+
+	if _, err := t.Exec(query, args...); err != nil {
+		return err
+	}
+	return nil
 }

@@ -1,4 +1,4 @@
-package cardsRepo
+package cardRepo
 
 import (
 	"bankApp1/models"
@@ -11,15 +11,15 @@ import (
 	"time"
 )
 
-type CardsRepo struct {
+type CardRepo struct {
 	manager txManager.TxManager
 }
 
-func NewCardsRepo(manager txManager.TxManager) *CardsRepo {
-	return &CardsRepo{manager: manager}
+func NewCardRepo(manager txManager.TxManager) *CardRepo {
+	return &CardRepo{manager: manager}
 }
 
-func (r *CardsRepo) Create(ctx context.Context, c models.Card) (models.CardID, error) {
+func (r *CardRepo) Create(ctx context.Context, c models.Card) (models.CardID, error) {
 	query, args, err := sq.Insert(sqlQueries.CardTable).
 		Columns(sqlQueries.InsertCardColumns...).
 		Values(
@@ -48,7 +48,7 @@ func (r *CardsRepo) Create(ctx context.Context, c models.Card) (models.CardID, e
 	return id, nil
 }
 
-func (r *CardsRepo) Get(ctx context.Context, filter models.CardFilter) (models.Card, error) {
+func (r *CardRepo) Get(ctx context.Context, filter models.CardFilter) (models.Card, error) {
 	cards, err := r.GetMany(ctx, filter)
 	if err != nil {
 		return models.Card{}, err
@@ -60,7 +60,7 @@ func (r *CardsRepo) Get(ctx context.Context, filter models.CardFilter) (models.C
 	return cards[0], nil
 }
 
-func (r *CardsRepo) GetMany(ctx context.Context, filter models.CardFilter) ([]models.Card, error) {
+func (r *CardRepo) GetMany(ctx context.Context, filter models.CardFilter) (models.ManyCards, error) {
 	conds := r.getConds(filter)
 
 	query, args, err := sq.Select(sqlQueries.GetCardColumns...).
@@ -84,7 +84,7 @@ func (r *CardsRepo) GetMany(ctx context.Context, filter models.CardFilter) ([]mo
 	return manyCards, nil
 }
 
-func (r *CardsRepo) Delete(ctx context.Context, id models.CardID) error {
+func (r *CardRepo) Delete(ctx context.Context, id models.CardID) error {
 	query, args, err := sq.Update(sqlQueries.CardTable).
 		Set(sqlQueries.DeletedAtColumnName, time.Now()).
 		Where(sq.Eq{
@@ -106,7 +106,7 @@ func (r *CardsRepo) Delete(ctx context.Context, id models.CardID) error {
 	return nil
 }
 
-func (r *CardsRepo) getConds(filter models.CardFilter) sq.And {
+func (r *CardRepo) getConds(filter models.CardFilter) sq.And {
 	var sb sq.And
 
 	if len(filter.IDs) != 0 {

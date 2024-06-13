@@ -14,7 +14,7 @@ type Deposit struct {
 type ManyDeposits []Deposit
 
 type DepositFilter struct {
-	IDs           []UserID
+	IDs           []DepositID
 	UserIDs       []UserID
 	Types         []string
 	InterestRates []float32
