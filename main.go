@@ -3,8 +3,10 @@ package main
 import (
 	"bankApp1/config"
 	"bankApp1/dbConnector"
+	"bankApp1/models"
+	"bankApp1/repo/userRepo"
 	"bankApp1/txManager"
-	"context"
+	userUseCase "bankApp1/usecase"
 	"log"
 )
 
@@ -24,7 +26,29 @@ func main() {
 	}
 	db := &dbConnector.DataBase{DB: sqlDB}
 	mng := txManager.NewTxManager(db)
-	ctx := context.Background()
+	usRep := userRepo.NewUserRepo(mng)
+
+	userUC := userUseCase.NewUserUC(mng, usRep)
+	//u := &models.User{
+	//	Name:           "Aaaa",
+	//	Lastname:       "Bbbbb",
+	//	Patronymic:     "SHuuuuuu",
+	//	Email:          "bbb@qq.com",
+	//	Password:       "12345",
+	//	PassportNumber: "666",
+	//	CreatedAt:      time.Now(),
+	//}
+	//if id, err := userUC.Register(u); err != nil {
+	//	log.Fatalf("Error registering user: %v", err)
+	//} else {
+	//	log.Printf("User ID: %d", id)
+	//}
+	f := models.UserFilter{Emails: []string{"bbb@qq.com"}}
+	if id, err := userUC.Login(f, "12345"); err != nil {
+		log.Fatalf("Error logging in: %v", err)
+	} else {
+		log.Printf("User %v logged in", id)
+	}
 
 	// ТЕСТЫ
 

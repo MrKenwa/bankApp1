@@ -31,7 +31,7 @@ func (r *UserRepo) Create(ctx context.Context, u *models.User) (models.UserID, e
 			u.PassportNumber,
 			time.Now(),
 		).
-		Suffix(fmt.Sprintf("RETURNING %s", sqlQueries.UserIDColumnName)).
+		Suffix(fmt.Sprintf("RETURNING %s", sqlQueries.IDColumnName)).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
