@@ -8,22 +8,24 @@ import (
 	"database/sql"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
+	"math/rand"
 	"time"
 )
 
 type CardRepo struct {
-	manager txManager.TxManager
+	manager *txManager.TxManager
 }
 
-func NewCardRepo(manager txManager.TxManager) *CardRepo {
+func NewCardRepo(manager *txManager.TxManager) *CardRepo {
 	return &CardRepo{manager: manager}
 }
 
 func (r *CardRepo) Create(ctx context.Context, c models.Card) (models.CardID, error) {
+	cNumber := rand.Intn(99999999-10000000+1) + 10000000
 	query, args, err := sq.Insert(sqlQueries.CardTable).
 		Columns(sqlQueries.InsertCardColumns...).
 		Values(
-			c.CardNumber,
+			cNumber,
 			c.UserID,
 			c.Type,
 			c.Pin,
@@ -90,6 +92,7 @@ func (r *CardRepo) Delete(ctx context.Context, id models.CardID) error {
 		Where(sq.Eq{
 			sqlQueries.CardIDColumnName: id,
 		}).
+		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
 		return err

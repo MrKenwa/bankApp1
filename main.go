@@ -4,9 +4,10 @@ import (
 	"bankApp1/config"
 	"bankApp1/dbConnector"
 	"bankApp1/models"
-	"bankApp1/repo/userRepo"
+	"bankApp1/repo/balanceRepo"
+	"bankApp1/repo/operationRepo"
 	"bankApp1/txManager"
-	userUseCase "bankApp1/usecase"
+	"bankApp1/usecase/paymentUsecase"
 	"log"
 )
 
@@ -26,9 +27,44 @@ func main() {
 	}
 	db := &dbConnector.DataBase{DB: sqlDB}
 	mng := txManager.NewTxManager(db)
-	usRep := userRepo.NewUserRepo(mng)
+	//ctx := context.Background()
+	//cardRep := cardRepo.NewCardRepo(mng)
+	//depRepo := depositRepo.NewDepositRepo(mng)
+	balRepo := balanceRepo.NewBalanceRepo(mng)
+	opRepo := operationRepo.NewOperationRepo(mng)
+	//b := models.Balance{
+	//	CardID:    models.CardID(10),
+	//	Amount:    100000,
+	//	CreatedAt: time.Now(),
+	//}
+	//if bid, err := balRepo.Create(ctx, b); err != nil {
+	//	log.Fatalf("Error creating balance: %v", err)
+	//} else {
+	//	log.Printf("Created new balance: %v", bid)
+	//}
+	sf := models.BalanceFilter{CardIDs: []models.CardID{14}}
+	rf := models.BalanceFilter{DepositIDs: []models.DepositID{5}}
+	pUC := paymentUsecase.NewPaymentUC(mng, balRepo, opRepo)
+	if oid, err := pUC.Send(sf, rf, 5000, "c2d"); err != nil {
+		log.Fatalf("Error sending transfer: %v", err)
+	} else {
+		log.Printf("Successfully sent transfer: %v", oid)
+	}
+	//if _, err := pUC.PayIn(rf, 100000, "pay in"); err != nil {
+	//	log.Fatalf("Error pay in: %v", err)
+	//} else {
+	//	log.Println("Pay in")
+	//}
 
-	userUC := userUseCase.NewUserUC(mng, usRep)
+	//prUC := productsUsecase.NewProductsUsecase(mng, cardRep, depRepo, balRepo)
+	//if id, err := prUC.CreateNewDeposit(4, "depchik", 1.25); err != nil {
+	//	log.Fatalf("Error creating deposit: %v", err)
+	//} else {
+	//	log.Printf("Successfully create deposit %v", id)
+	//}
+	//usRep := userRepo.NewUserRepo(mng)
+
+	//userUC := userUseCase.NewUserUC(mng, usRep)
 	//u := &models.User{
 	//	Name:           "Aaaa",
 	//	Lastname:       "Bbbbb",
@@ -43,12 +79,12 @@ func main() {
 	//} else {
 	//	log.Printf("User ID: %d", id)
 	//}
-	f := models.UserFilter{Emails: []string{"bbb@qq.com"}}
-	if id, err := userUC.Login(f, "12345"); err != nil {
-		log.Fatalf("Error logging in: %v", err)
-	} else {
-		log.Printf("User %v logged in", id)
-	}
+	//f := models.UserFilter{Emails: []string{"bbb@qq.com"}}
+	//if id, err := userUC.Login(f, "12345"); err != nil {
+	//	log.Fatalf("Error logging in: %v", err)
+	//} else {
+	//	log.Printf("User %v logged in", id)
+	//}
 
 	// ТЕСТЫ
 

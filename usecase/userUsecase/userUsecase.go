@@ -1,4 +1,4 @@
-package userUseCase
+package userUsecase
 
 import (
 	"bankApp1/models"

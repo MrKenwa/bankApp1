@@ -19,6 +19,7 @@ func NewOperationRepo(manager *txManager.TxManager) *OperationRepo {
 	return &OperationRepo{manager: manager}
 }
 
+// почему бы не принимать структуру operation через ссылку?
 func (r *OperationRepo) Create(ctx context.Context, op models.Operation) (models.OperationID, error) {
 	query, args, err := sq.Insert(sqlQueries.OperationTable).
 		Columns(sqlQueries.InsertOperationColumns...).

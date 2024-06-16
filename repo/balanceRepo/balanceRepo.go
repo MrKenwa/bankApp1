@@ -88,7 +88,7 @@ func (r *BalanceRepo) getConds(filter models.BalanceFilter) sq.And {
 
 	if len(filter.IDs) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.OperationIDColumnName: filter.IDs,
+			sqlQueries.BalanceIDColumnName: filter.IDs,
 		})
 	}
 	if len(filter.CardIDs) != 0 {
@@ -107,12 +107,58 @@ func (r *BalanceRepo) getConds(filter models.BalanceFilter) sq.And {
 	return sb
 }
 
-func (r *BalanceRepo) Delete(ctx context.Context, id models.BalanceID) error {
+func (r *BalanceRepo) Increase(ctx context.Context, filter models.BalanceFilter, amount int64) error {
+	conds := r.getConds(filter)
+
+	query, args, err := sq.Update(sqlQueries.BalanceTable).
+		Set(sqlQueries.AmountColumnName, sq.Expr(fmt.Sprintf("%s + %d", sqlQueries.AmountColumnName, amount))).
+		Where(conds).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	t, err := r.manager.ExtractTXOrDB(ctx)
+	if err != nil {
+		return err
+	}
+
+	if _, err := t.Exec(query, args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *BalanceRepo) Decrease(ctx context.Context, filter models.BalanceFilter, amount int64) error {
+	conds := r.getConds(filter)
+
+	query, args, err := sq.Update(sqlQueries.BalanceTable).
+		Set(sqlQueries.AmountColumnName, sq.Expr(fmt.Sprintf("%s - %d", sqlQueries.AmountColumnName, amount))).
+		Where(conds).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	t, err := r.manager.ExtractTXOrDB(ctx)
+	if err != nil {
+		return err
+	}
+
+	if _, err := t.Exec(query, args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *BalanceRepo) Delete(ctx context.Context, filter models.BalanceFilter) error {
+	conds := r.getConds(filter)
 	query, args, err := sq.Update(sqlQueries.BalanceTable).
 		Set(sqlQueries.DeletedAtColumnName, time.Now()).
-		Where(sq.Eq{
-			sqlQueries.BalanceIDColumnName: id,
-		}).
+		Where(conds).
+		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
 		return err
