@@ -12,8 +12,8 @@ import (
 type UserRepo interface {
 	Create(ctx context.Context, u *models.User) (models.UserID, error)
 	Get(ctx context.Context, filter models.UserFilter) (models.User, error)
-	GetMany(ctx context.Context, filter models.UserFilter) (models.ManyUsers, error)
-	Delete(ctx context.Context, id models.UserID) error
+	//GetMany(ctx context.Context, filter models.UserFilter) (models.ManyUsers, error)
+	//Delete(ctx context.Context, id models.UserID) error
 }
 
 type UserUC struct {

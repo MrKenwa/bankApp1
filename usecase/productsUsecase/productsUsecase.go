@@ -9,11 +9,13 @@ import (
 
 type CardRepo interface {
 	Create(ctx context.Context, c models.Card) (models.CardID, error)
+	GetMany(ctx context.Context, filter models.CardFilter) (models.ManyCards, error)
 	Delete(ctx context.Context, id models.CardID) error
 }
 
 type DepositRepo interface {
 	Create(ctx context.Context, d models.Deposit) (models.DepositID, error)
+	GetMany(ctx context.Context, filter models.DepositFilter) (models.ManyDeposits, error)
 	Delete(ctx context.Context, id models.DepositID) error
 }
 
@@ -136,4 +138,38 @@ func (u *ProductsUsecase) DeleteDeposit(did models.DepositID) error {
 		return err
 	}
 	return nil
+}
+
+func (u *ProductsUsecase) GetCards(uid models.UserID) (models.ManyCards, error) {
+	ctx := context.Background()
+	var cards models.ManyCards
+	var err error
+	filter := models.CardFilter{UserIDs: []models.UserID{uid}}
+	if err := u.manager.Do(ctx, func(ctx context.Context) error {
+		cards, err = u.cardRepo.GetMany(ctx, filter)
+		if err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return cards, nil
+}
+
+func (u *ProductsUsecase) GetDeposits(uid models.UserID) (models.ManyDeposits, error) {
+	ctx := context.Background()
+	var deposits models.ManyDeposits
+	var err error
+	filter := models.DepositFilter{UserIDs: []models.UserID{uid}}
+	if err := u.manager.Do(ctx, func(ctx context.Context) error {
+		deposits, err = u.depositRepo.GetMany(ctx, filter)
+		if err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return deposits, nil
 }

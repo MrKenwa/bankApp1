@@ -118,6 +118,7 @@ func (r *DepositRepo) Delete(ctx context.Context, id models.DepositID) error {
 		Where(sq.Eq{
 			sqlQueries.DepositIDColumnName: id,
 		}).
+		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
 		return err
