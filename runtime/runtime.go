@@ -1,16 +1,16 @@
 package runtime
 
 import (
-	"bankApp1/models"
+	models2 "bankApp1/internal/models"
+	"bankApp1/internal/users/repo"
+	"bankApp1/internal/users/usecase"
 	"bankApp1/repo/balanceRepo"
 	"bankApp1/repo/cardRepo"
 	"bankApp1/repo/depositRepo"
 	"bankApp1/repo/operationRepo"
-	"bankApp1/repo/userRepo"
 	"bankApp1/txManager"
 	"bankApp1/usecase/paymentUsecase"
 	"bankApp1/usecase/productsUsecase"
-	"bankApp1/usecase/userUsecase"
 	"fmt"
 	"log"
 	"os"
@@ -20,23 +20,23 @@ import (
 )
 
 type runtime struct {
-	userRep      *userRepo.UserRepo
+	userRep      *repo.UserRepo
 	cardRep      *cardRepo.CardRepo
 	depositRep   *depositRepo.DepositRepo
 	balanceRep   *balanceRepo.BalanceRepo
 	operationRep *operationRepo.OperationRepo
-	userUC       *userUsecase.UserUC
+	userUC       *usecase.UserUC
 	productUC    *productsUsecase.ProductsUsecase
 	paymentUC    *paymentUsecase.PaymentUC
 }
 
 func newRuntime(manager *txManager.TxManager) runtime {
-	userRep := userRepo.NewUserRepo(manager)
+	userRep := repo.NewUserRepo(manager)
 	cardRep := cardRepo.NewCardRepo(manager)
 	depRepo := depositRepo.NewDepositRepo(manager)
 	balRepo := balanceRepo.NewBalanceRepo(manager)
 	opRepo := operationRepo.NewOperationRepo(manager)
-	userUC := userUsecase.NewUserUC(manager, userRep)
+	userUC := usecase.NewUserUC(manager, userRep)
 	productsUC := productsUsecase.NewProductsUsecase(manager, cardRep, depRepo, balRepo)
 	payUC := paymentUsecase.NewPaymentUC(manager, balRepo, opRepo)
 	return runtime{
@@ -70,7 +70,7 @@ const (
 
 func Run(manager *txManager.TxManager) {
 	runtime := newRuntime(manager)
-	var uid models.UserID
+	var uid models2.UserID
 
 	clearConsole()
 	fmt.Printf("Welcome to Z bank!\n")
@@ -95,7 +95,7 @@ func Run(manager *txManager.TxManager) {
 			fmt.Println("Enter your email")
 			var email string
 			fmt.Scanln(&email)
-			filter := models.UserFilter{Emails: []string{email}}
+			filter := models2.UserFilter{Emails: []string{email}}
 			fmt.Println("Enter your password")
 			var password string
 			fmt.Scanln(&password)
@@ -154,8 +154,8 @@ func Run(manager *txManager.TxManager) {
 	return
 }
 
-func GetUser() models.User {
-	var user models.User
+func GetUser() models2.User {
+	var user models2.User
 	fmt.Println("Enter your name: ")
 	fmt.Scanln(&user.Name)
 	fmt.Println("Enter your last name")
@@ -174,7 +174,7 @@ func GetUser() models.User {
 	return user
 }
 
-func SendMoney(uid models.UserID, runtime runtime) error {
+func SendMoney(uid models2.UserID, runtime runtime) error {
 	senderFilter, err := chooseProduct(uid, runtime)
 	if err != nil {
 		return err
@@ -199,7 +199,7 @@ func SendMoney(uid models.UserID, runtime runtime) error {
 	return nil
 }
 
-func PayOutFunc(uid models.UserID, runtime runtime) error {
+func PayOutFunc(uid models2.UserID, runtime runtime) error {
 	senderFilter, err := chooseProduct(uid, runtime)
 	if err != nil {
 		return err
@@ -242,7 +242,7 @@ func PayInFunc(runtime runtime) error {
 	return nil
 }
 
-func NewProductFunc(uid models.UserID, runtime runtime) error {
+func NewProductFunc(uid models2.UserID, runtime runtime) error {
 	fmt.Println("Choose type: ")
 	fmt.Println("1.Card\n2.Deposit")
 	var ch string
@@ -268,12 +268,13 @@ func NewProductFunc(uid models.UserID, runtime runtime) error {
 		clearConsole()
 		fmt.Println("New deposit id:", did)
 	}
+
 	fmt.Println("Enter anything to continue...")
 	fmt.Scanln()
 	return nil
 }
 
-func CloseProductFunc(uid models.UserID, runtime runtime) error {
+func CloseProductFunc(uid models2.UserID, runtime runtime) error {
 	productFilter, err := chooseProduct(uid, runtime)
 	if err != nil {
 		return err
@@ -295,7 +296,7 @@ func CloseProductFunc(uid models.UserID, runtime runtime) error {
 	return nil
 }
 
-func chooseProduct(uid models.UserID, runtime runtime) (models.BalanceFilter, error) {
+func chooseProduct(uid models2.UserID, runtime runtime) (models2.BalanceFilter, error) {
 	fmt.Println("Choose your product:")
 	cards, err := runtime.productUC.GetCards(uid)
 	if err != nil {
@@ -317,22 +318,22 @@ func chooseProduct(uid models.UserID, runtime runtime) (models.BalanceFilter, er
 		count++
 	}
 
-	var senderFilter models.BalanceFilter
+	var senderFilter models2.BalanceFilter
 	var ch string
 	fmt.Scanln(&ch)
 	n, _ := strconv.Atoi(ch)
 	n--
 	if n < len(cards) {
-		senderFilter.CardIDs = []models.CardID{cards[n].CardID}
+		senderFilter.CardIDs = []models2.CardID{cards[n].CardID}
 	} else if n < len(cards)+len(deposits) {
-		senderFilter.DepositIDs = []models.DepositID{deposits[n-len(cards)].DepositID}
+		senderFilter.DepositIDs = []models2.DepositID{deposits[n-len(cards)].DepositID}
 	}
 	return senderFilter, nil
 }
 
-func chooseReceiver() (models.BalanceFilter, error) {
+func chooseReceiver() (models2.BalanceFilter, error) {
 	var ch string
-	var receiverFilter models.BalanceFilter
+	var receiverFilter models2.BalanceFilter
 	fmt.Println("Choose receiver type: ")
 	fmt.Println("1.Card\n2.Deposit\n3.Balance id")
 	fmt.Scanln(&ch)
@@ -342,15 +343,15 @@ func chooseReceiver() (models.BalanceFilter, error) {
 	fmt.Scanln(&e)
 	id, err := strconv.Atoi(e)
 	if err != nil {
-		return models.BalanceFilter{}, err
+		return models2.BalanceFilter{}, err
 	}
 	switch ch {
 	case "1":
-		receiverFilter.CardIDs = []models.CardID{models.CardID(id)}
+		receiverFilter.CardIDs = []models2.CardID{models2.CardID(id)}
 	case "2":
-		receiverFilter.DepositIDs = []models.DepositID{models.DepositID(id)}
+		receiverFilter.DepositIDs = []models2.DepositID{models2.DepositID(id)}
 	case "3":
-		receiverFilter.IDs = []models.BalanceID{models.BalanceID(id)}
+		receiverFilter.IDs = []models2.BalanceID{models2.BalanceID(id)}
 	}
 	return receiverFilter, nil
 }

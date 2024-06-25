@@ -1,8 +1,8 @@
-package userRepo
+package repo
 
 import (
-	"bankApp1/models"
-	"bankApp1/sqlQueries"
+	models2 "bankApp1/internal/models"
+	sqlQueries2 "bankApp1/pkg/sqlQueries"
 	"bankApp1/txManager"
 	"context"
 	"database/sql"
@@ -19,9 +19,9 @@ func NewUserRepo(mng *txManager.TxManager) *UserRepo {
 	return &UserRepo{manager: mng}
 }
 
-func (r *UserRepo) Create(ctx context.Context, u *models.User) (models.UserID, error) {
-	query, args, err := sq.Insert(sqlQueries.UserTable).
-		Columns(sqlQueries.InsertUserColumns...).
+func (r *UserRepo) Create(ctx context.Context, u *models2.User) (models2.UserID, error) {
+	query, args, err := sq.Insert(sqlQueries2.UserTable).
+		Columns(sqlQueries2.InsertUserColumns...).
 		Values(
 			u.Name,
 			u.Lastname,
@@ -31,7 +31,7 @@ func (r *UserRepo) Create(ctx context.Context, u *models.User) (models.UserID, e
 			u.PassportNumber,
 			time.Now(),
 		).
-		Suffix(fmt.Sprintf("RETURNING %s", sqlQueries.IDColumnName)).
+		Suffix(fmt.Sprintf("RETURNING %s", sqlQueries2.IDColumnName)).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
@@ -43,30 +43,30 @@ func (r *UserRepo) Create(ctx context.Context, u *models.User) (models.UserID, e
 		return -1, err
 	}
 
-	var id models.UserID
+	var id models2.UserID
 	if err := t.QueryRow(query, args...).Scan(&id); err != nil {
 		return -1, err
 	}
 	return id, nil
 }
 
-func (r *UserRepo) Get(ctx context.Context, filter models.UserFilter) (models.User, error) {
+func (r *UserRepo) Get(ctx context.Context, filter models2.UserFilter) (models2.User, error) {
 	users, err := r.GetMany(ctx, filter)
 	if err != nil {
-		return models.User{}, err
+		return models2.User{}, err
 	}
 
 	if len(users) == 0 {
-		return models.User{}, sql.ErrNoRows
+		return models2.User{}, sql.ErrNoRows
 	}
 	return users[0], nil
 }
 
-func (r *UserRepo) GetMany(ctx context.Context, filter models.UserFilter) (models.ManyUsers, error) {
+func (r *UserRepo) GetMany(ctx context.Context, filter models2.UserFilter) (models2.ManyUsers, error) {
 	conds := r.getConds(filter)
 
-	query, args, err := sq.Select(sqlQueries.GetUserColumns...).
-		From(sqlQueries.UserTable).
+	query, args, err := sq.Select(sqlQueries2.GetUserColumns...).
+		From(sqlQueries2.UserTable).
 		Where(conds).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -79,7 +79,7 @@ func (r *UserRepo) GetMany(ctx context.Context, filter models.UserFilter) (model
 		return nil, err
 	}
 
-	var manyUsers models.ManyUsers
+	var manyUsers models2.ManyUsers
 	if err := t.Select(&manyUsers, query, args...); err != nil {
 		return nil, err
 	}
@@ -87,11 +87,11 @@ func (r *UserRepo) GetMany(ctx context.Context, filter models.UserFilter) (model
 
 }
 
-func (r *UserRepo) Delete(ctx context.Context, id models.UserID) error {
-	query, args, err := sq.Update(sqlQueries.UserTable).
-		Set(sqlQueries.DeletedAtColumnName, time.Now()).
+func (r *UserRepo) Delete(ctx context.Context, id models2.UserID) error {
+	query, args, err := sq.Update(sqlQueries2.UserTable).
+		Set(sqlQueries2.DeletedAtColumnName, time.Now()).
 		Where(sq.Eq{
-			sqlQueries.UserIDColumnName: id,
+			sqlQueries2.UserIDColumnName: id,
 		}).
 		ToSql()
 	if err != nil {
@@ -109,36 +109,36 @@ func (r *UserRepo) Delete(ctx context.Context, id models.UserID) error {
 	return nil
 }
 
-func (r *UserRepo) getConds(filter models.UserFilter) sq.And {
+func (r *UserRepo) getConds(filter models2.UserFilter) sq.And {
 	var sb sq.And
 
 	if len(filter.IDs) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.IDColumnName: filter.IDs,
+			sqlQueries2.IDColumnName: filter.IDs,
 		})
 	}
 	if len(filter.Names) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.NameColumnName: filter.Names,
+			sqlQueries2.NameColumnName: filter.Names,
 		})
 	}
 	if len(filter.Lastnames) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.PasswordColumnName: filter.Lastnames,
+			sqlQueries2.PasswordColumnName: filter.Lastnames,
 		})
 	}
 	if len(filter.Patronymics) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.PasswordColumnName: filter.Patronymics,
+			sqlQueries2.PasswordColumnName: filter.Patronymics,
 		})
 	}
 	if len(filter.Emails) != 0 {
 		sb = append(sb, sq.Eq{
-			sqlQueries.EmailColumnName: filter.Emails,
+			sqlQueries2.EmailColumnName: filter.Emails,
 		})
 	}
 	sb = append(sb, sq.Eq{
-		sqlQueries.DeletedAtColumnName: nil,
+		sqlQueries2.DeletedAtColumnName: nil,
 	})
 	return sb
 }

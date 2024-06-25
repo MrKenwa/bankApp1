@@ -1,7 +1,7 @@
 package paymentUsecase
 
 import (
-	"bankApp1/models"
+	models2 "bankApp1/internal/models"
 	"bankApp1/txManager"
 	"context"
 	"errors"
@@ -9,13 +9,13 @@ import (
 )
 
 type BalanceRepo interface {
-	Get(ctx context.Context, filter models.BalanceFilter) (models.Balance, error)
-	Increase(ctx context.Context, filter models.BalanceFilter, amount int64) error
-	Decrease(ctx context.Context, filter models.BalanceFilter, amount int64) error
+	Get(ctx context.Context, filter models2.BalanceFilter) (models2.Balance, error)
+	Increase(ctx context.Context, filter models2.BalanceFilter, amount int64) error
+	Decrease(ctx context.Context, filter models2.BalanceFilter, amount int64) error
 }
 
 type OperationRepo interface {
-	Create(ctx context.Context, op models.Operation) (models.OperationID, error)
+	Create(ctx context.Context, op models2.Operation) (models2.OperationID, error)
 }
 
 type PaymentUC struct {
@@ -32,9 +32,9 @@ func NewPaymentUC(manager *txManager.TxManager, bRepo BalanceRepo, oRepo Operati
 	}
 }
 
-func (u *PaymentUC) Send(sFilter models.BalanceFilter, rFilter models.BalanceFilter, amount int64, opType string) (models.OperationID, error) {
+func (u *PaymentUC) Send(sFilter models2.BalanceFilter, rFilter models2.BalanceFilter, amount int64, opType string) (models2.OperationID, error) {
 	ctx := context.Background()
-	var opid models.OperationID
+	var opid models2.OperationID
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		senderBalance, err := u.balRepo.Get(ctx, sFilter)
 		if err != nil {
@@ -57,7 +57,7 @@ func (u *PaymentUC) Send(sFilter models.BalanceFilter, rFilter models.BalanceFil
 			return err
 		}
 
-		operation := models.Operation{
+		operation := models2.Operation{
 			SenderBalanceID:   &senderBalance.BalanceID,
 			ReceiverBalanceID: &receiverBalance.BalanceID,
 			Amount:            amount,
@@ -76,9 +76,9 @@ func (u *PaymentUC) Send(sFilter models.BalanceFilter, rFilter models.BalanceFil
 	return opid, nil
 }
 
-func (u *PaymentUC) PayIn(rFilter models.BalanceFilter, amount int64, opType string) (models.OperationID, error) {
+func (u *PaymentUC) PayIn(rFilter models2.BalanceFilter, amount int64, opType string) (models2.OperationID, error) {
 	ctx := context.Background()
-	var opid models.OperationID
+	var opid models2.OperationID
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		receiverBalance, err := u.balRepo.Get(ctx, rFilter)
 		if err != nil {
@@ -89,7 +89,7 @@ func (u *PaymentUC) PayIn(rFilter models.BalanceFilter, amount int64, opType str
 			return err
 		}
 
-		operation := models.Operation{
+		operation := models2.Operation{
 			ReceiverBalanceID: &receiverBalance.BalanceID,
 			Amount:            amount,
 			OperationType:     opType,
@@ -107,9 +107,9 @@ func (u *PaymentUC) PayIn(rFilter models.BalanceFilter, amount int64, opType str
 	return opid, nil
 }
 
-func (u *PaymentUC) PayOut(sFilter models.BalanceFilter, amount int64, opType string) (models.OperationID, error) {
+func (u *PaymentUC) PayOut(sFilter models2.BalanceFilter, amount int64, opType string) (models2.OperationID, error) {
 	ctx := context.Background()
-	var opid models.OperationID
+	var opid models2.OperationID
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		senderBalance, err := u.balRepo.Get(ctx, sFilter)
 		if err != nil {
@@ -124,7 +124,7 @@ func (u *PaymentUC) PayOut(sFilter models.BalanceFilter, amount int64, opType st
 			return err
 		}
 
-		operation := models.Operation{
+		operation := models2.Operation{
 			SenderBalanceID: &senderBalance.BalanceID,
 			Amount:          amount,
 			OperationType:   opType,

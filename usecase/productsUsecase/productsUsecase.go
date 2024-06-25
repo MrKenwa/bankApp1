@@ -1,27 +1,27 @@
 package productsUsecase
 
 import (
-	"bankApp1/models"
+	models2 "bankApp1/internal/models"
 	"bankApp1/txManager"
 	"context"
 	"time"
 )
 
 type CardRepo interface {
-	Create(ctx context.Context, c models.Card) (models.CardID, error)
-	GetMany(ctx context.Context, filter models.CardFilter) (models.ManyCards, error)
-	Delete(ctx context.Context, id models.CardID) error
+	Create(ctx context.Context, c models2.Card) (models2.CardID, error)
+	GetMany(ctx context.Context, filter models2.CardFilter) (models2.ManyCards, error)
+	Delete(ctx context.Context, id models2.CardID) error
 }
 
 type DepositRepo interface {
-	Create(ctx context.Context, d models.Deposit) (models.DepositID, error)
-	GetMany(ctx context.Context, filter models.DepositFilter) (models.ManyDeposits, error)
-	Delete(ctx context.Context, id models.DepositID) error
+	Create(ctx context.Context, d models2.Deposit) (models2.DepositID, error)
+	GetMany(ctx context.Context, filter models2.DepositFilter) (models2.ManyDeposits, error)
+	Delete(ctx context.Context, id models2.DepositID) error
 }
 
 type BalanceRepo interface {
-	Create(ctx context.Context, b models.Balance) (models.BalanceID, error)
-	Delete(ctx context.Context, filter models.BalanceFilter) error
+	Create(ctx context.Context, b models2.Balance) (models2.BalanceID, error)
+	Delete(ctx context.Context, filter models2.BalanceFilter) error
 }
 
 type ProductsUsecase struct {
@@ -40,12 +40,12 @@ func NewProductsUsecase(manager *txManager.TxManager, cRepo CardRepo, dRepo Depo
 	}
 }
 
-func (u *ProductsUsecase) CreateNewCard(uid models.UserID, cType string, pin string) (models.CardID, error) {
+func (u *ProductsUsecase) CreateNewCard(uid models2.UserID, cType string, pin string) (models2.CardID, error) {
 	ctx := context.Background()
-	var cid models.CardID
+	var cid models2.CardID
 	var err error
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
-		card := models.Card{
+		card := models2.Card{
 			UserID: uid,
 			Type:   cType,
 			Pin:    pin,
@@ -56,7 +56,7 @@ func (u *ProductsUsecase) CreateNewCard(uid models.UserID, cType string, pin str
 			return err
 		}
 
-		balance := models.Balance{
+		balance := models2.Balance{
 			CardID:    &cid,
 			Amount:    0,
 			CreatedAt: time.Now(),
@@ -72,7 +72,7 @@ func (u *ProductsUsecase) CreateNewCard(uid models.UserID, cType string, pin str
 	return cid, nil
 }
 
-func (u *ProductsUsecase) DeleteCard(cid models.CardID) error {
+func (u *ProductsUsecase) DeleteCard(cid models2.CardID) error {
 	ctx := context.Background()
 	err := u.manager.Do(ctx, func(ctx context.Context) error {
 		err := u.cardRepo.Delete(ctx, cid)
@@ -80,7 +80,7 @@ func (u *ProductsUsecase) DeleteCard(cid models.CardID) error {
 			return err
 		}
 
-		filter := models.BalanceFilter{CardIDs: []models.CardID{cid}}
+		filter := models2.BalanceFilter{CardIDs: []models2.CardID{cid}}
 		err = u.balanceRepo.Delete(ctx, filter)
 		if err != nil {
 			return err
@@ -93,12 +93,12 @@ func (u *ProductsUsecase) DeleteCard(cid models.CardID) error {
 	return nil
 }
 
-func (u *ProductsUsecase) CreateNewDeposit(uid models.UserID, dType string, intRate float32) (models.DepositID, error) {
+func (u *ProductsUsecase) CreateNewDeposit(uid models2.UserID, dType string, intRate float32) (models2.DepositID, error) {
 	ctx := context.Background()
-	var did models.DepositID
+	var did models2.DepositID
 	var err error
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
-		deposit := models.Deposit{
+		deposit := models2.Deposit{
 			UserID:       uid,
 			Type:         dType,
 			InterestRate: intRate,
@@ -109,7 +109,7 @@ func (u *ProductsUsecase) CreateNewDeposit(uid models.UserID, dType string, intR
 			return err
 		}
 
-		balance := models.Balance{
+		balance := models2.Balance{
 			DepositID: &did,
 			Amount:    0,
 			CreatedAt: time.Now(),
@@ -125,7 +125,7 @@ func (u *ProductsUsecase) CreateNewDeposit(uid models.UserID, dType string, intR
 	return did, nil
 }
 
-func (u *ProductsUsecase) DeleteDeposit(did models.DepositID) error {
+func (u *ProductsUsecase) DeleteDeposit(did models2.DepositID) error {
 	ctx := context.Background()
 	err := u.manager.Do(ctx, func(ctx context.Context) error {
 		err := u.depositRepo.Delete(ctx, did)
@@ -140,11 +140,11 @@ func (u *ProductsUsecase) DeleteDeposit(did models.DepositID) error {
 	return nil
 }
 
-func (u *ProductsUsecase) GetCards(uid models.UserID) (models.ManyCards, error) {
+func (u *ProductsUsecase) GetCards(uid models2.UserID) (models2.ManyCards, error) {
 	ctx := context.Background()
-	var cards models.ManyCards
+	var cards models2.ManyCards
 	var err error
-	filter := models.CardFilter{UserIDs: []models.UserID{uid}}
+	filter := models2.CardFilter{UserIDs: []models2.UserID{uid}}
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		cards, err = u.cardRepo.GetMany(ctx, filter)
 		if err != nil {
@@ -157,11 +157,11 @@ func (u *ProductsUsecase) GetCards(uid models.UserID) (models.ManyCards, error) 
 	return cards, nil
 }
 
-func (u *ProductsUsecase) GetDeposits(uid models.UserID) (models.ManyDeposits, error) {
+func (u *ProductsUsecase) GetDeposits(uid models2.UserID) (models2.ManyDeposits, error) {
 	ctx := context.Background()
-	var deposits models.ManyDeposits
+	var deposits models2.ManyDeposits
 	var err error
-	filter := models.DepositFilter{UserIDs: []models.UserID{uid}}
+	filter := models2.DepositFilter{UserIDs: []models2.UserID{uid}}
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		deposits, err = u.depositRepo.GetMany(ctx, filter)
 		if err != nil {

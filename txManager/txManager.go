@@ -1,7 +1,7 @@
 package txManager
 
 import (
-	"bankApp1/dbConnector"
+	"bankApp1/pkg/dbConnector"
 	"context"
 	"github.com/jmoiron/sqlx"
 	"log"

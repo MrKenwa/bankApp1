@@ -1,4 +1,7 @@
 {
+  "Server": {
+    "Host": "localhost:9000"
+  },
   "Postgres": {
     "Host": "localhost",
     "User": "postgres",

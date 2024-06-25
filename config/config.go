@@ -8,6 +8,9 @@ import (
 const configPath = "./config/config.json"
 
 type Config struct {
+	Server struct {
+		Host string
+	}
 	Postgres struct {
 		Host     string
 		Port     string
@@ -17,7 +20,8 @@ type Config struct {
 	}
 }
 
-func LoadConfig() (c *Config, err error) {
+func LoadConfig() (*Config, error) {
+	var c *Config
 	jsonFile, err := os.Open(configPath)
 	defer jsonFile.Close()
 	if err != nil {
