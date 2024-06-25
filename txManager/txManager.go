@@ -17,6 +17,7 @@ func NewTxManager(db dbConnector.DBOps) *TxManager {
 	return &TxManager{db: db}
 }
 
+// Deprecated!
 func (m *TxManager) Do(ctx context.Context, fn func(ctx context.Context) error) error {
 	t, err := m.db.Beginx()
 	if err != nil {
