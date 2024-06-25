@@ -21,3 +21,15 @@ func (r *RegisterRequest) toRegisterUser() *usecase.RegisterUser {
 		PassportNumber: r.PassportNumber,
 	}
 }
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (r *LoginRequest) toLoginUser() *usecase.LoginUser {
+	return &usecase.LoginUser{
+		Email:    r.Email,
+		Password: r.Password,
+	}
+}

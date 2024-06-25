@@ -21,3 +21,14 @@ func (r *RegisterUser) toUser() *models.User {
 		PassportNumber: r.PassportNumber,
 	}
 }
+
+type LoginUser struct {
+	Email    string
+	Password string
+}
+
+func (l *LoginUser) toUserFilter() *models.UserFilter {
+	return &models.UserFilter{
+		Emails: []string{l.Email},
+	}
+}

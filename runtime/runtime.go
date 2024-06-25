@@ -2,7 +2,7 @@ package runtime
 
 import (
 	models2 "bankApp1/internal/models"
-	"bankApp1/internal/users/repo"
+	"bankApp1/internal/users/repo/postgres"
 	"bankApp1/internal/users/usecase"
 	"bankApp1/repo/balanceRepo"
 	"bankApp1/repo/cardRepo"
@@ -20,7 +20,7 @@ import (
 )
 
 type runtime struct {
-	userRep      *repo.UserRepo
+	userRep      *postgres.UserRepo
 	cardRep      *cardRepo.CardRepo
 	depositRep   *depositRepo.DepositRepo
 	balanceRep   *balanceRepo.BalanceRepo
@@ -31,7 +31,7 @@ type runtime struct {
 }
 
 func newRuntime(manager *txManager.TxManager) runtime {
-	userRep := repo.NewUserRepo(manager)
+	userRep := postgres.NewUserRepo(manager)
 	cardRep := cardRepo.NewCardRepo(manager)
 	depRepo := depositRepo.NewDepositRepo(manager)
 	balRepo := balanceRepo.NewBalanceRepo(manager)

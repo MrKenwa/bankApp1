@@ -32,3 +32,23 @@ func (h *UserHandlers) Register() fiber.Handler {
 		})
 	}
 }
+
+func (h *UserHandlers) Login() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		req := LoginRequest{}
+		c.Body()
+		if err := c.BodyParser(&req); err != nil {
+			return err
+		}
+
+		logUser := req.toLoginUser()
+
+		uid, err := h.userUC.Login(logUser)
+		if err != nil {
+			return err
+		}
+		return c.JSON(fiber.Map{
+			"data": fmt.Sprintf("User was logged in with id=%d", uid),
+		})
+	}
+}

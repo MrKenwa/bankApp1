@@ -49,15 +49,16 @@ func (u *UserUC) Register(regData *RegisterUser) (uid models.UserID, err error) 
 	return uid, nil
 }
 
-func (u *UserUC) Login(filter models.UserFilter, pwd string) (uid models.UserID, err error) {
+func (u *UserUC) Login(logData *LoginUser) (uid models.UserID, err error) {
 	ctx := context.Background()
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
+		filter := logData.toUserFilter()
 		user, err := u.userRepo.Get(ctx, filter)
 		if err != nil {
-			return errors.New("users not found")
+			return errors.New("user not found")
 		}
 
-		if !utils.IsPasswordCorrect([]byte(pwd), []byte(user.Password)) {
+		if !utils.IsPasswordCorrect([]byte(logData.Password), []byte(user.Password)) {
 			return errors.New("wrong password")
 		}
 		uid = user.UserID

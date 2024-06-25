@@ -2,7 +2,7 @@ package server
 
 import (
 	"bankApp1/internal/users/delivery/userHttp"
-	userrepo "bankApp1/internal/users/repo"
+	userrepo "bankApp1/internal/users/repo/postgres"
 	"bankApp1/internal/users/usecase"
 	trmsqlx "github.com/avito-tech/go-transaction-manager/drivers/sqlx/v2"
 )

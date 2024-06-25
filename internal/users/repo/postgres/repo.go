@@ -1,4 +1,4 @@
-package repo
+package postgres
 
 import (
 	"bankApp1/internal/models"
@@ -49,7 +49,7 @@ func (r *UserRepo) Create(ctx context.Context, u *models.User) (models.UserID, e
 	return id, nil
 }
 
-func (r *UserRepo) Get(ctx context.Context, filter models.UserFilter) (models.User, error) {
+func (r *UserRepo) Get(ctx context.Context, filter *models.UserFilter) (models.User, error) {
 	users, err := r.GetMany(ctx, filter)
 	if err != nil {
 		return models.User{}, err
@@ -61,7 +61,7 @@ func (r *UserRepo) Get(ctx context.Context, filter models.UserFilter) (models.Us
 	return users[0], nil
 }
 
-func (r *UserRepo) GetMany(ctx context.Context, filter models.UserFilter) (models.ManyUsers, error) {
+func (r *UserRepo) GetMany(ctx context.Context, filter *models.UserFilter) (models.ManyUsers, error) {
 	conds := r.getConds(filter)
 
 	query, args, err := sq.Select(sqlQueries.GetUserColumns...).
@@ -102,7 +102,7 @@ func (r *UserRepo) Delete(ctx context.Context, id models.UserID) error {
 	return nil
 }
 
-func (r *UserRepo) getConds(filter models.UserFilter) sq.And {
+func (r *UserRepo) getConds(filter *models.UserFilter) sq.And {
 	var sb sq.And
 
 	if len(filter.IDs) != 0 {

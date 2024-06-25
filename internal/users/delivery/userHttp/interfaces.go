@@ -9,10 +9,11 @@ import (
 type (
 	UserUC interface {
 		Register(user *usecase.RegisterUser) (models.UserID, error)
-		//Login(username, password string) (models.UserID, error)
+		Login(user *usecase.LoginUser) (models.UserID, error)
 	}
 
 	Handlers interface {
 		Register() fiber.Handler
+		Login() fiber.Handler
 	}
 )
