@@ -3,18 +3,18 @@ package usecase
 import (
 	"bankApp1/internal/models"
 	"bankApp1/pkg/utils"
-	"bankApp1/txManager"
 	"context"
 	"errors"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUC struct {
-	manager  *txManager.TxManager
+	manager  *manager.Manager
 	userRepo UserRepo
 }
 
-func NewUserUC(manager *txManager.TxManager, userRepo UserRepo) *UserUC {
+func NewUserUC(manager *manager.Manager, userRepo UserRepo) *UserUC {
 	return &UserUC{
 		manager:  manager,
 		userRepo: userRepo,

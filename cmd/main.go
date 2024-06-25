@@ -4,7 +4,8 @@ import (
 	"bankApp1/config"
 	"bankApp1/internal/server"
 	"bankApp1/pkg/dbConnector"
-	"bankApp1/txManager"
+	trmsqlx "github.com/avito-tech/go-transaction-manager/drivers/sqlx/v2"
+	manager2 "github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"log"
 )
 
@@ -23,7 +24,7 @@ func main() {
 		log.Println("Connected to DB")
 	}
 	db := dbConnector.PostgresDB{DB: sqlDB}
-	manager := txManager.NewTxManager(&db)
+	manager := manager2.Must(trmsqlx.NewDefaultFactory(sqlDB))
 
 	s := server.NewServer(cfg, db, manager)
 

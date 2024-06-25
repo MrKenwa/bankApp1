@@ -3,8 +3,8 @@ package server
 import (
 	"bankApp1/config"
 	"bankApp1/pkg/dbConnector"
-	"bankApp1/txManager"
 	"fmt"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/gofiber/fiber/v2"
 	"os"
 	"os/signal"
@@ -15,10 +15,10 @@ type Server struct {
 	fiber    *fiber.App
 	cfg      *config.Config
 	postgres dbConnector.PostgresDB
-	manager  *txManager.TxManager
+	manager  *manager.Manager
 }
 
-func NewServer(cfg *config.Config, postgres dbConnector.PostgresDB, manager *txManager.TxManager) *Server {
+func NewServer(cfg *config.Config, postgres dbConnector.PostgresDB, manager *manager.Manager) *Server {
 	return &Server{
 		fiber:    fiber.New(),
 		cfg:      cfg,
