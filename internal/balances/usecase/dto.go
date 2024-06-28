@@ -1,6 +1,8 @@
 package usecase
 
-import "bankApp1/internal/models"
+import (
+	"bankApp1/internal/models"
+)
 
 type CreateBalance struct {
 	CardID    *models.CardID

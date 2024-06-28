@@ -25,7 +25,7 @@ type runtime struct {
 	balanceRep   *postgres4.BalanceRepo
 	operationRep *postgres3.OperationRepo
 	userUC       *usecase.UserUC
-	productUC    *usecase3.ProductsUsecase
+	productUC    *usecase3.ProductsUC
 	paymentUC    *usecase2.PaymentUC
 }
 
@@ -36,7 +36,7 @@ func newRuntime(manager *txManager.TxManager) runtime {
 	balRepo := postgres4.NewBalanceRepo(manager)
 	opRepo := postgres3.NewOperationRepo(manager)
 	userUC := usecase.NewUserUC(manager, userRep)
-	productsUC := usecase3.NewProductsUsecase(manager, cardRep, depRepo, balRepo)
+	productsUC := usecase3.NewProductsUC(manager, cardRep, depRepo, balRepo)
 	payUC := usecase2.NewPaymentUC(manager, balRepo, opRepo)
 	return runtime{
 		userRep:      userRep,

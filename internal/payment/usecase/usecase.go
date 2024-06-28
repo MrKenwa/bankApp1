@@ -5,7 +5,6 @@ import (
 	"bankApp1/internal/models"
 	"context"
 	"errors"
-	"fmt"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 )
 
@@ -68,7 +67,6 @@ func (u *PaymentUC) PayIn(ctx context.Context, payData *PayData) (models.Operati
 	}
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		balanceFilter := payData.toBalanceFilter()
-		fmt.Println("Я дошел до функции пэй ин")
 		if err := u.balanceUC.Increase(ctx, (*usecase.Filter)(balanceFilter), payData.Amount); err != nil {
 			return err
 		}

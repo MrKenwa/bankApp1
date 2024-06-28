@@ -10,7 +10,7 @@ type PaymentHandlers struct {
 }
 
 func NewPaymentHandlers(paymentUC PaymentUC) *PaymentHandlers {
-	return &PaymentHandlers{paymentUC}
+	return &PaymentHandlers{paymentUC: paymentUC}
 }
 
 func (p *PaymentHandlers) Send() fiber.Handler {

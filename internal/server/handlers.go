@@ -6,6 +6,9 @@ import (
 	"bankApp1/internal/payment/delivery"
 	paymentrepo "bankApp1/internal/payment/repo/postgres"
 	paymentusecase "bankApp1/internal/payment/usecase"
+	productsDelivery "bankApp1/internal/products/delivery"
+	productsrepo "bankApp1/internal/products/repo/postgres"
+	productsusecase "bankApp1/internal/products/usecase"
 	"bankApp1/internal/users/delivery/userHttp"
 	userrepo "bankApp1/internal/users/repo/postgres"
 	"bankApp1/internal/users/usecase"
@@ -28,4 +31,12 @@ func (s *Server) MapHandlers() {
 
 	paymentGroup := s.fiber.Group("payment")
 	delivery.MapPaymentRoutes(paymentGroup, paymentHandlers)
+
+	cardsRepo := productsrepo.NewCardRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
+	depositsRepo := productsrepo.NewDepositRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
+	productUC := productsusecase.NewProductsUC(s.manager, cardsRepo, depositsRepo, balanceUC)
+	productHandlers := productsDelivery.NewProductHandlers(productUC)
+
+	productGroup := s.fiber.Group("product")
+	productsDelivery.MapProductsRoutes(productGroup, productHandlers)
 }

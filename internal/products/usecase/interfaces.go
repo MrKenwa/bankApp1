@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"bankApp1/internal/balances/usecase"
 	"bankApp1/internal/models"
 	"context"
 )
@@ -19,7 +20,7 @@ type (
 	}
 
 	BalanceUC interface {
-		Create(context.Context, *models.Balance) (models.BalanceID, error)
-		Delete(context.Context, *models.BalanceFilter) error
+		Create(context.Context, *usecase.CreateBalance) (models.BalanceID, error)
+		Delete(context.Context, *usecase.Filter) error
 	}
 )
