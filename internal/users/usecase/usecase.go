@@ -21,8 +21,7 @@ func NewUserUC(manager *manager.Manager, userRepo UserRepo) *UserUC {
 	}
 }
 
-func (u *UserUC) Register(regData *RegisterUser) (uid models.UserID, err error) {
-	ctx := context.Background()
+func (u *UserUC) Register(ctx context.Context, regData *RegisterUser) (uid models.UserID, err error) {
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		hashedPswd, err := bcrypt.GenerateFromPassword([]byte(regData.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -49,8 +48,7 @@ func (u *UserUC) Register(regData *RegisterUser) (uid models.UserID, err error) 
 	return uid, nil
 }
 
-func (u *UserUC) Login(logData *LoginUser) (uid models.UserID, err error) {
-	ctx := context.Background()
+func (u *UserUC) Login(ctx context.Context, logData *LoginUser) (uid models.UserID, err error) {
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		filter := logData.toUserFilter()
 		user, err := u.userRepo.Get(ctx, filter)

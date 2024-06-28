@@ -23,7 +23,7 @@ func (h *UserHandlers) Register() fiber.Handler {
 
 		regUser := req.toRegisterUser()
 
-		uid, err := h.userUC.Register(regUser)
+		uid, err := h.userUC.Register(c.Context(), regUser)
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ func (h *UserHandlers) Login() fiber.Handler {
 
 		logUser := req.toLoginUser()
 
-		uid, err := h.userUC.Login(logUser)
+		uid, err := h.userUC.Login(c.Context(), logUser)
 		if err != nil {
 			return err
 		}

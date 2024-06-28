@@ -6,3 +6,6 @@ type CardNumber int64
 type DepositID int64
 type OperationID int64
 type BalanceID int64
+
+const PayInOperationType = "pay in"
+const PayOutOperationType = "pay out"

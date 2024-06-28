@@ -1,16 +1,15 @@
 package runtime
 
 import (
+	postgres4 "bankApp1/internal/balances/repo/postgres"
 	models2 "bankApp1/internal/models"
+	postgres3 "bankApp1/internal/payment/repo/postgres"
+	usecase2 "bankApp1/internal/payment/usecase"
+	postgres2 "bankApp1/internal/products/repo/postgres"
+	usecase3 "bankApp1/internal/products/usecase"
 	"bankApp1/internal/users/repo/postgres"
 	"bankApp1/internal/users/usecase"
-	"bankApp1/repo/balanceRepo"
-	"bankApp1/repo/cardRepo"
-	"bankApp1/repo/depositRepo"
-	"bankApp1/repo/operationRepo"
 	"bankApp1/txManager"
-	"bankApp1/usecase/paymentUsecase"
-	"bankApp1/usecase/productsUsecase"
 	"fmt"
 	"log"
 	"os"
@@ -21,24 +20,24 @@ import (
 
 type runtime struct {
 	userRep      *postgres.UserRepo
-	cardRep      *cardRepo.CardRepo
-	depositRep   *depositRepo.DepositRepo
-	balanceRep   *balanceRepo.BalanceRepo
-	operationRep *operationRepo.OperationRepo
+	cardRep      *postgres2.CardRepo
+	depositRep   *postgres2.DepositRepo
+	balanceRep   *postgres4.BalanceRepo
+	operationRep *postgres3.OperationRepo
 	userUC       *usecase.UserUC
-	productUC    *productsUsecase.ProductsUsecase
-	paymentUC    *paymentUsecase.PaymentUC
+	productUC    *usecase3.ProductsUsecase
+	paymentUC    *usecase2.PaymentUC
 }
 
 func newRuntime(manager *txManager.TxManager) runtime {
 	userRep := postgres.NewUserRepo(manager)
-	cardRep := cardRepo.NewCardRepo(manager)
-	depRepo := depositRepo.NewDepositRepo(manager)
-	balRepo := balanceRepo.NewBalanceRepo(manager)
-	opRepo := operationRepo.NewOperationRepo(manager)
+	cardRep := postgres2.NewCardRepo(manager)
+	depRepo := postgres2.NewDepositRepo(manager)
+	balRepo := postgres4.NewBalanceRepo(manager)
+	opRepo := postgres3.NewOperationRepo(manager)
 	userUC := usecase.NewUserUC(manager, userRep)
-	productsUC := productsUsecase.NewProductsUsecase(manager, cardRep, depRepo, balRepo)
-	payUC := paymentUsecase.NewPaymentUC(manager, balRepo, opRepo)
+	productsUC := usecase3.NewProductsUsecase(manager, cardRep, depRepo, balRepo)
+	payUC := usecase2.NewPaymentUC(manager, balRepo, opRepo)
 	return runtime{
 		userRep:      userRep,
 		cardRep:      cardRep,
