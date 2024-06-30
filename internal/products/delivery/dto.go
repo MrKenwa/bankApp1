@@ -25,7 +25,7 @@ type DeleteCardRequest struct {
 
 type CreateDepositRequest struct {
 	UserID  models.UserID `json:"user_id"`
-	Type    string        `json:"type"`
+	Type    string        `json:"deposit_type"`
 	IntRate float32       `json:"int_rate"`
 }
 

@@ -4,6 +4,7 @@ import (
 	"bankApp1/internal/balances/usecase"
 	"bankApp1/internal/models"
 	"context"
+	"errors"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 )
 
@@ -27,6 +28,9 @@ func (u *ProductsUC) CreateNewCard(ctx context.Context, cardData *CreateCard) (m
 	var cid models.CardID
 	var err error
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
+		if cardData.Pin == "" || cardData.Type == "" {
+			return errors.New("invalid data")
+		}
 		card := cardData.toCard()
 
 		cid, err = u.cardRepo.Create(ctx, card)
@@ -74,6 +78,9 @@ func (u *ProductsUC) CreateNewDeposit(ctx context.Context, depositData *CreateDe
 	var did models.DepositID
 	var err error
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
+		if depositData.IntRate == 0 || depositData.Type == "" {
+			return errors.New("invalid data")
+		}
 		deposit := depositData.toDeposit()
 
 		did, err = u.depositRepo.Create(ctx, deposit)
