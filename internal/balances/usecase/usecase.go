@@ -3,7 +3,6 @@ package usecase
 import (
 	"bankApp1/internal/models"
 	"context"
-	"fmt"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 )
 
@@ -59,7 +58,6 @@ func (buc *BalanceUC) Get(ctx context.Context, f *Filter) (models.Balance, error
 }
 
 func (buc *BalanceUC) Increase(ctx context.Context, f *Filter, amount int64) error {
-	fmt.Println("я в функции increase")
 	if err := buc.manager.Do(ctx, func(ctx context.Context) error {
 		filter := f.toBalanceFilter()
 		err := buc.balanceRepo.Increase(ctx, &filter, amount)

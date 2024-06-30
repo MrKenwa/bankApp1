@@ -1,7 +1,7 @@
 package sqlQueries
 
 const (
-	BalanceTable        = "balances"
+	BalanceTable        = "payment_schema.balances"
 	BalanceIDColumnName = "balance_id"
 )
 

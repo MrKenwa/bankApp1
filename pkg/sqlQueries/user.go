@@ -1,7 +1,7 @@
 package sqlQueries
 
 const (
-	UserTable            = "users"
+	UserTable            = "user_schema.users"
 	IDColumnName         = "id"
 	NameColumnName       = "name"
 	LastNameColumnName   = "lastname"

@@ -1,7 +1,7 @@
 package sqlQueries
 
 const (
-	OperationTable              = "operations"
+	OperationTable              = "payment_schema.operations"
 	OperationIDColumnName       = "operation_id"
 	SenderBalanceIDColumnName   = "sender_balance_id"
 	ReceiverBalanceIDColumnName = "receiver_balance_id"

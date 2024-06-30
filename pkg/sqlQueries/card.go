@@ -1,7 +1,7 @@
 package sqlQueries
 
 const (
-	CardTable            = "cards"
+	CardTable            = "product_schema.cards"
 	CardNumberColumnName = "card_number"
 	CardTypeColumnName   = "card_type"
 	PinCodeColumnName    = "pin_code"

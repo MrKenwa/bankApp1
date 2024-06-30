@@ -76,7 +76,6 @@ func (r *BalanceRepo) GetMany(ctx context.Context, filter *models.BalanceFilter)
 	if err := t.SelectContext(ctx, &manyBalances, query, args...); err != nil {
 		return nil, err
 	}
-	fmt.Printf("aaa %v", manyBalances)
 	return manyBalances, nil
 }
 

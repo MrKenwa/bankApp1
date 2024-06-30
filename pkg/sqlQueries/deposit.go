@@ -1,7 +1,7 @@
 package sqlQueries
 
 const (
-	DepositTable           = "deposits"
+	DepositTable           = "product_schema.deposits"
 	DepositTypeColumnName  = "deposit_type"
 	InterestRateColumnName = "interest_rate"
 )
