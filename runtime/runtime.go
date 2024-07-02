@@ -1,14 +1,15 @@
 package runtime
 
 import (
-	postgres4 "bankApp1/internal/balances/repo/postgres"
+	postgres4 "bankApp1/internal/balances/balancesRepo/postgres"
+	"bankApp1/internal/cards/cardsRepo"
+	postgres2 "bankApp1/internal/deposits/depositsRepo"
 	models2 "bankApp1/internal/models"
-	postgres3 "bankApp1/internal/payment/repo/postgres"
-	usecase2 "bankApp1/internal/payment/usecase"
-	postgres2 "bankApp1/internal/products/repo/postgres"
-	usecase3 "bankApp1/internal/products/usecase"
-	"bankApp1/internal/users/repo/postgres"
-	"bankApp1/internal/users/usecase"
+	postgres3 "bankApp1/internal/payment/paymentRepo/postgres"
+	usecase2 "bankApp1/internal/payment/paymentUsecase"
+	usecase3 "bankApp1/internal/products/productsUsecase"
+	"bankApp1/internal/users/userRepo/postgres"
+	"bankApp1/internal/users/userUsecase"
 	"bankApp1/txManager"
 	"fmt"
 	"log"
@@ -20,22 +21,22 @@ import (
 
 type runtime struct {
 	userRep      *postgres.UserRepo
-	cardRep      *postgres2.CardRepo
+	cardRep      *cardsRepo.CardRepo
 	depositRep   *postgres2.DepositRepo
 	balanceRep   *postgres4.BalanceRepo
 	operationRep *postgres3.OperationRepo
-	userUC       *usecase.UserUC
+	userUC       *userUsecase.UserUC
 	productUC    *usecase3.ProductsUC
 	paymentUC    *usecase2.PaymentUC
 }
 
 func newRuntime(manager *txManager.TxManager) runtime {
 	userRep := postgres.NewUserRepo(manager)
-	cardRep := postgres2.NewCardRepo(manager)
+	cardRep := cardsRepo.NewCardRepo(manager)
 	depRepo := postgres2.NewDepositRepo(manager)
 	balRepo := postgres4.NewBalanceRepo(manager)
 	opRepo := postgres3.NewOperationRepo(manager)
-	userUC := usecase.NewUserUC(manager, userRep)
+	userUC := userUsecase.NewUserUC(manager, userRep)
 	productsUC := usecase3.NewProductsUC(manager, cardRep, depRepo, balRepo)
 	payUC := usecase2.NewPaymentUC(manager, balRepo, opRepo)
 	return runtime{
@@ -297,11 +298,11 @@ func CloseProductFunc(uid models2.UserID, runtime runtime) error {
 
 func chooseProduct(uid models2.UserID, runtime runtime) (models2.BalanceFilter, error) {
 	fmt.Println("Choose your product:")
-	cards, err := runtime.productUC.GetCards(uid)
+	cards, err := runtime.productUC.GetManyCards(uid)
 	if err != nil {
 		fmt.Printf("Get cards failed: %v", err)
 	}
-	deposits, err := runtime.productUC.GetDeposits(uid)
+	deposits, err := runtime.productUC.GetManyDeposits(uid)
 	if err != nil {
 		fmt.Printf("Get deposits failed: %v", err)
 	}

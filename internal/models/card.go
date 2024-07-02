@@ -2,7 +2,7 @@ package models
 
 type Card struct {
 	CardID     CardID  `db:"card_id"`
-	CardNumber string  `db:"card_number"`
+	CardNumber int     `db:"card_number"`
 	UserID     UserID  `db:"user_id"`
 	Type       string  `db:"card_type"`
 	Pin        string  `db:"pin_code"`
