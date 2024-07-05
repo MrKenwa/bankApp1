@@ -4,6 +4,7 @@ import (
 	"bankApp1/internal/cards/cardsUsecase"
 	"bankApp1/internal/deposits/depositsUsecase"
 	"bankApp1/internal/models"
+	"math/rand"
 )
 
 type CreateCard struct {
@@ -19,7 +20,9 @@ type CreateDeposit struct {
 }
 
 func (c *CreateCard) toCard() cardsUsecase.CreateCard {
+	number := rand.Intn(99999999-10000000+1) + 10000000
 	return cardsUsecase.CreateCard{
+		Number: number,
 		UserID: c.UserID,
 		Type:   c.Type,
 		Pin:    c.Pin,

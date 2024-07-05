@@ -1,9 +1,12 @@
 package paymentDelivery
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"bankApp1/internal/middleware"
+	"github.com/gofiber/fiber/v2"
+)
 
-func MapPaymentRoutes(group fiber.Router, h Handlers) {
-	group.Post("/sendMoney", h.Send())
-	group.Post("/payIn", h.PayIn())
-	group.Post("/payOut", h.PayOut())
+func MapPaymentRoutes(group fiber.Router, h Handlers, mw *middleware.MDWManager) {
+	group.Post("/sendMoney", mw.AuthedMiddleware(), h.Send())
+	group.Post("/payIn", mw.AuthedMiddleware(), h.PayIn())
+	group.Post("/payOut", mw.AuthedMiddleware(), h.PayOut())
 }

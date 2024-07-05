@@ -7,6 +7,7 @@ import (
 	"bankApp1/internal/cards/cardsUsecase"
 	"bankApp1/internal/deposits/depositsRepo"
 	"bankApp1/internal/deposits/depositsUsecase"
+	"bankApp1/internal/middleware"
 	"bankApp1/internal/payment/paymentDelivery"
 	operationsRepo "bankApp1/internal/payment/paymentRepo/postgres"
 	"bankApp1/internal/payment/paymentUsecase"
@@ -20,28 +21,30 @@ import (
 
 func (s *Server) MapHandlers() {
 	userRepo := userrepo.NewUserRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
-	userUC := userUsecase.NewUserUC(s.manager, &userRepo)
+	userUC := userUsecase.NewUserUC(s.manager, &userRepo, s.cfg)
 	userHandlers := userHttp.NewUserHandlers(&userUC)
+	middleWareManager := middleware.NewMDWManager(s.cfg, &userRepo)
 
 	userGroup := s.fiber.Group("users")
-	userHttp.MapUserRoutes(userGroup, &userHandlers)
-
-	balanceRepo := postgres.NewBalanceRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
-	operationRepo := operationsRepo.NewOperationRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
-	balanceUC := balancesUsecase.NewBalanceUC(s.manager, &balanceRepo)
-	paymentUC := paymentUsecase.NewPaymentUC(s.manager, &balanceUC, &operationRepo)
-	paymentHandlers := paymentDelivery.NewPaymentHandlers(paymentUC)
-
-	paymentGroup := s.fiber.Group("payment")
-	paymentDelivery.MapPaymentRoutes(paymentGroup, paymentHandlers)
+	userHttp.MapUserRoutes(userGroup, &userHandlers, middleWareManager)
 
 	cardRepo := cardsRepo.NewCardRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
 	depositRepo := depositsRepo.NewDepositRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
 	cardsUC := cardsUsecase.NewCardUC(s.manager, &cardRepo)
 	depositsUC := depositsUsecase.NewDepositsUC(s.manager, depositRepo)
+
+	balanceRepo := postgres.NewBalanceRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
+	operationRepo := operationsRepo.NewOperationRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
+	balanceUC := balancesUsecase.NewBalanceUC(s.manager, &balanceRepo)
+	paymentUC := paymentUsecase.NewPaymentUC(s.manager, &balanceUC, &operationRepo, &cardsUC, &depositsUC)
+	paymentHandlers := paymentDelivery.NewPaymentHandlers(paymentUC)
+
+	paymentGroup := s.fiber.Group("payment")
+	paymentDelivery.MapPaymentRoutes(paymentGroup, paymentHandlers, middleWareManager)
+
 	productUC := productsUsecase.NewProductsUC(s.manager, &cardsUC, &depositsUC, &balanceUC)
 	productHandlers := productsDelivery.NewProductHandlers(&productUC)
 
 	productGroup := s.fiber.Group("product")
-	productsDelivery.MapProductsRoutes(productGroup, &productHandlers)
+	productsDelivery.MapProductsRoutes(productGroup, &productHandlers, middleWareManager)
 }

@@ -13,8 +13,8 @@ type (
 		CreateNewDeposit(context.Context, productsUsecase.CreateDeposit) (models.DepositID, error)
 		GetManyCards(context.Context, models.UserID) (models.ManyCards, error)
 		GetManyDeposits(context.Context, models.UserID) (models.ManyDeposits, error)
-		DeleteCard(context.Context, models.CardID) error
-		DeleteDeposit(context.Context, models.DepositID) error
+		DeleteCard(context.Context, models.CardID, models.UserID) error
+		DeleteDeposit(context.Context, models.DepositID, models.UserID) error
 	}
 
 	Handlers interface {

@@ -13,7 +13,7 @@ type Card struct {
 type ManyCards []Card
 
 type CardFilter struct {
-	IDs     []UserID
+	IDs     []CardID
 	Numbers []CardNumber
 	UserIDs []UserID
 	Types   []string

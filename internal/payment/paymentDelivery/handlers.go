@@ -1,6 +1,8 @@
 package paymentDelivery
 
 import (
+	"bankApp1/internal/models"
+	"errors"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -24,7 +26,13 @@ func (p *PaymentHandlers) Send() fiber.Handler {
 			return err
 		}
 
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		sendData := req.toSendData()
+		sendData.UserID = claims.UserID
 		opid, err := p.paymentUC.Send(c.Context(), sendData)
 		if err != nil {
 			return err
@@ -72,7 +80,13 @@ func (p *PaymentHandlers) PayOut() fiber.Handler {
 			return err
 		}
 
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		payData := req.toPayData()
+		payData.UserID = claims.UserID
 		opid, err := p.paymentUC.PayOut(c.Context(), payData)
 		if err != nil {
 			return err

@@ -7,9 +7,8 @@ import (
 )
 
 type CreateCardRequest struct {
-	UserID   models.UserID `json:"user_id"`
-	CardType string        `json:"card_type"`
-	Pin      string        `json:"pin"`
+	CardType string `json:"card_type"`
+	Pin      string `json:"pin"`
 }
 
 type DeleteCardRequest struct {
@@ -17,48 +16,37 @@ type DeleteCardRequest struct {
 }
 
 type CreateDepositRequest struct {
-	UserID  models.UserID `json:"user_id"`
-	Type    string        `json:"deposit_type"`
-	IntRate float32       `json:"int_rate"`
+	Type    string  `json:"deposit_type"`
+	IntRate float32 `json:"int_rate"`
 }
 
 type DeleteDepositRequest struct {
 	DepositID models.DepositID `json:"deposit_id"`
 }
 
-type GetCardsRequest struct {
-	UserID models.UserID `json:"user_id"`
-}
-
-type GetDepositsRequest struct {
-	UserID models.UserID `json:"user_id"`
-}
-
 func (req *CreateCardRequest) toCreateCard() productsUsecase.CreateCard {
 	return productsUsecase.CreateCard{
-		UserID: req.UserID,
-		Type:   req.CardType,
-		Pin:    req.Pin,
+		Type: req.CardType,
+		Pin:  req.Pin,
 	}
 }
 
 func (req *CreateDepositRequest) toCreateDeposit() productsUsecase.CreateDeposit {
 	return productsUsecase.CreateDeposit{
-		UserID:  req.UserID,
 		Type:    req.Type,
 		IntRate: req.IntRate,
 	}
 }
 
 func (req *CreateCardRequest) checkData() error {
-	if req.UserID <= 0 || req.CardType == "" || req.Pin == "" {
+	if req.CardType == "" || req.Pin == "" {
 		return errors.New("invalid data")
 	}
 	return nil
 }
 
 func (req *CreateDepositRequest) checkData() error {
-	if req.UserID <= 0 || req.Type == "" || req.IntRate <= 1 {
+	if req.Type == "" || req.IntRate <= 1 {
 		return errors.New("invalid data")
 	}
 	return nil

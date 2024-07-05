@@ -1,6 +1,8 @@
 package productsDelivery
 
 import (
+	"bankApp1/internal/models"
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,7 +26,13 @@ func (p *ProductHandlers) CreateNewCard() fiber.Handler {
 			return err
 		}
 
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		createCard := req.toCreateCard()
+		createCard.UserID = claims.UserID
 		cid, err := p.productUC.CreateNewCard(c.Context(), createCard)
 		if err != nil {
 			return err
@@ -47,26 +55,32 @@ func (p *ProductHandlers) CreateNewDeposit() fiber.Handler {
 			return err
 		}
 
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		createDeposit := req.toCreateDeposit()
+		createDeposit.UserID = claims.UserID
 		did, err := p.productUC.CreateNewDeposit(c.Context(), createDeposit)
 		if err != nil {
 			return err
 		}
 		return c.JSON(fiber.Map{
-			"message": "Deposit created successfully",
-			"cardID":  did,
+			"message":   "Deposit created successfully",
+			"depositID": did,
 		})
 	}
 }
 
 func (p *ProductHandlers) GetCards() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		req := GetCardsRequest{}
-		if err := c.BodyParser(&req); err != nil {
-			return err
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
 		}
 
-		cards, err := p.productUC.GetManyCards(c.Context(), req.UserID)
+		cards, err := p.productUC.GetManyCards(c.Context(), claims.UserID)
 		if err != nil {
 			return err
 		}
@@ -79,12 +93,12 @@ func (p *ProductHandlers) GetCards() fiber.Handler {
 
 func (p *ProductHandlers) GetDeposits() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		req := GetDepositsRequest{}
-		if err := c.BodyParser(&req); err != nil {
-			return err
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
 		}
 
-		deposits, err := p.productUC.GetManyDeposits(c.Context(), req.UserID)
+		deposits, err := p.productUC.GetManyDeposits(c.Context(), claims.UserID)
 		if err != nil {
 			return err
 		}
@@ -102,7 +116,12 @@ func (p *ProductHandlers) DeleteCard() fiber.Handler {
 			return err
 		}
 
-		if err := p.productUC.DeleteCard(c.Context(), req.CardID); err != nil {
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
+		if err := p.productUC.DeleteCard(c.Context(), req.CardID, claims.UserID); err != nil {
 			return err
 		}
 		return c.JSON(fiber.Map{
@@ -118,7 +137,12 @@ func (p *ProductHandlers) DeleteDeposit() fiber.Handler {
 			return err
 		}
 
-		if err := p.productUC.DeleteDeposit(c.Context(), req.DepositID); err != nil {
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
+		if err := p.productUC.DeleteDeposit(c.Context(), req.DepositID, claims.UserID); err != nil {
 			return err
 		}
 		return c.JSON(fiber.Map{

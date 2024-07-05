@@ -15,6 +15,7 @@ require (
 	github.com/avito-tech/go-transaction-manager/drivers/sql/v2 v2.0.0-rc6 // indirect
 	github.com/avito-tech/go-transaction-manager/drivers/sqlx/v2 v2.0.0-rc8 // indirect
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.0-rc8 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
