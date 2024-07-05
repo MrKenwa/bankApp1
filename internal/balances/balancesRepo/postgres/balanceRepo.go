@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"bankApp1/internal/models"
-	"bankApp1/pkg/dbConnector"
+	"bankApp1/pkg/dbConnector/postgres"
 	"bankApp1/pkg/sqlQueries"
 	"context"
 	"database/sql"
@@ -14,10 +14,10 @@ import (
 
 type BalanceRepo struct {
 	getter *trmsqlx.CtxGetter
-	db     *dbConnector.PostgresDB
+	db     *postgres.PostgresDB
 }
 
-func NewBalanceRepo(getter *trmsqlx.CtxGetter, db *dbConnector.PostgresDB) BalanceRepo {
+func NewBalanceRepo(getter *trmsqlx.CtxGetter, db *postgres.PostgresDB) BalanceRepo {
 	return BalanceRepo{getter: getter, db: db}
 }
 

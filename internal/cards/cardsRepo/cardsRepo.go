@@ -2,7 +2,7 @@ package cardsRepo
 
 import (
 	"bankApp1/internal/models"
-	"bankApp1/pkg/dbConnector"
+	"bankApp1/pkg/dbConnector/postgres"
 	"bankApp1/pkg/sqlQueries"
 	"context"
 	"database/sql"
@@ -14,10 +14,10 @@ import (
 
 type CardRepo struct {
 	getter *trmsqlx.CtxGetter
-	db     *dbConnector.PostgresDB
+	db     *postgres.PostgresDB
 }
 
-func NewCardRepo(getter *trmsqlx.CtxGetter, db *dbConnector.PostgresDB) CardRepo {
+func NewCardRepo(getter *trmsqlx.CtxGetter, db *postgres.PostgresDB) CardRepo {
 	return CardRepo{getter: getter, db: db}
 }
 

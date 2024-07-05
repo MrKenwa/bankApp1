@@ -2,7 +2,7 @@ package depositsRepo
 
 import (
 	"bankApp1/internal/models"
-	"bankApp1/pkg/dbConnector"
+	"bankApp1/pkg/dbConnector/postgres"
 	"bankApp1/pkg/sqlQueries"
 	"context"
 	"database/sql"
@@ -14,10 +14,10 @@ import (
 
 type DepositRepo struct {
 	getter *trmsqlx.CtxGetter
-	db     *dbConnector.PostgresDB
+	db     *postgres.PostgresDB
 }
 
-func NewDepositRepo(getter *trmsqlx.CtxGetter, db *dbConnector.PostgresDB) *DepositRepo {
+func NewDepositRepo(getter *trmsqlx.CtxGetter, db *postgres.PostgresDB) *DepositRepo {
 	return &DepositRepo{getter: getter, db: db}
 }
 

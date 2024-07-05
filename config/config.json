@@ -1,6 +1,7 @@
 {
   "Server": {
-    "Host": "localhost:9000"
+    "Host": "localhost:9000",
+    "Domain": "localhost"
   },
   "Postgres": {
     "Host": "localhost",
@@ -8,5 +9,14 @@
     "Port": "5432",
     "Password": "54321",
     "DBName": "bank_db"
+  },
+  "Redis": {
+    "Host": "localhost",
+    "Port": "6379",
+    "Password": "12345",
+    "DB": 1
+  },
+  "SessionSettings": {
+    "SessionTTLSeconds": 28000
   }
 }

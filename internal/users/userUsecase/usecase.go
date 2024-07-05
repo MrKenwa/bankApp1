@@ -5,19 +5,23 @@ import (
 	"bankApp1/pkg/utils"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUC struct {
-	manager  *manager.Manager
-	userRepo UserRepo
+	manager       *manager.Manager
+	userRepo      UserRepo
+	userRedisRepo UserRedisRepo
 }
 
-func NewUserUC(manager *manager.Manager, userRepo UserRepo) UserUC {
+func NewUserUC(manager *manager.Manager, userRepo UserRepo, userRedisRepo UserRedisRepo) UserUC {
 	return UserUC{
-		manager:  manager,
-		userRepo: userRepo,
+		manager:       manager,
+		userRepo:      userRepo,
+		userRedisRepo: userRedisRepo,
 	}
 }
 
@@ -45,17 +49,31 @@ func (u *UserUC) Register(ctx context.Context, regData RegisterUser) (uid models
 	return uid, nil
 }
 
-func (u *UserUC) Login(ctx context.Context, logData LoginUser) (uid models.UserID, err error) {
+func (u *UserUC) Login(ctx context.Context, logData LoginUser) (string, error) {
 	filter := logData.toUserFilter()
 	user, err := u.userRepo.Get(ctx, filter)
 	if err != nil {
-		return -1, errors.New("user not found")
+		return "", errors.New("user not found")
 	}
 
 	if !utils.IsPasswordCorrect([]byte(logData.Password), []byte(user.Password)) {
-		return -1, errors.New("wrong password")
+		return "", errors.New("wrong password")
 	}
-	uid = user.UserID
 
-	return uid, nil
+	sessionKey := fmt.Sprintf("%d:%s", user.UserID, uuid.NewString())
+
+	if err := u.userRedisRepo.SetUserSession(ctx, sessionKey, models.Claims{
+		UserID: user.UserID,
+		Email:  user.Email,
+	}); err != nil {
+		return "", err
+	}
+
+	return sessionKey, nil
+}
+
+func (u *UserUC) GetUser(ctx context.Context, uid models.UserID) (models.User, error) {
+	return u.userRepo.Get(ctx, models.UserFilter{
+		IDs: []models.UserID{uid},
+	})
 }

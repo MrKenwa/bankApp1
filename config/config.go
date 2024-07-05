@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bankApp1/internal/models"
 	"encoding/json"
 	"os"
 )
@@ -9,7 +10,8 @@ const configPath = "./config/config.json"
 
 type Config struct {
 	Server struct {
-		Host string
+		Host   string
+		Domain string
 	}
 	Postgres struct {
 		Host     string
@@ -17,6 +19,15 @@ type Config struct {
 		User     string
 		Password string
 		DBName   string
+	}
+	Redis struct {
+		Host     string
+		Port     string
+		Password string
+		DB       int
+	}
+	SessionSettings struct {
+		SessionTTLSeconds models.TTL
 	}
 }
 

@@ -10,11 +10,13 @@ import (
 type (
 	UserUC interface {
 		Register(context.Context, userUsecase.RegisterUser) (models.UserID, error)
-		Login(context.Context, userUsecase.LoginUser) (models.UserID, error)
+		Login(context.Context, userUsecase.LoginUser) (string, error)
+		GetUser(context.Context, models.UserID) (models.User, error)
 	}
 
 	Handlers interface {
 		Register() fiber.Handler
 		Login() fiber.Handler
+		GetOwn() fiber.Handler
 	}
 )

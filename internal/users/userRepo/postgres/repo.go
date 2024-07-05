@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"bankApp1/internal/models"
-	"bankApp1/pkg/dbConnector"
+	"bankApp1/pkg/dbConnector/postgres"
 	"bankApp1/pkg/sqlQueries"
 	"context"
 	"database/sql"
@@ -14,10 +14,10 @@ import (
 
 type UserRepo struct {
 	getter *trmsqlx.CtxGetter
-	db     *dbConnector.PostgresDB
+	db     *postgres.PostgresDB
 }
 
-func NewUserRepo(getter *trmsqlx.CtxGetter, db *dbConnector.PostgresDB) UserRepo {
+func NewUserRepo(getter *trmsqlx.CtxGetter, db *postgres.PostgresDB) UserRepo {
 	return UserRepo{getter: getter, db: db}
 }
 
