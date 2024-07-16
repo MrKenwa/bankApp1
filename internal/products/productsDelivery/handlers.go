@@ -1,6 +1,8 @@
 package productsDelivery
 
 import (
+	"bankApp1/internal/models"
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,8 +15,13 @@ func NewProductHandlers(productUC ProductsUC) ProductHandlers {
 	return ProductHandlers{productUC: productUC}
 }
 
-func (p *ProductHandlers) CreateNewCard() fiber.Handler {
+func (h *ProductHandlers) CreateNewCard() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := CreateCardRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
@@ -25,7 +32,8 @@ func (p *ProductHandlers) CreateNewCard() fiber.Handler {
 		}
 
 		createCard := req.toCreateCard()
-		cid, err := p.productUC.CreateNewCard(c.Context(), createCard)
+		createCard.UserID = claims.UserID
+		cid, err := h.productUC.CreateNewCard(c.Context(), createCard)
 		if err != nil {
 			return err
 		}
@@ -36,8 +44,13 @@ func (p *ProductHandlers) CreateNewCard() fiber.Handler {
 	}
 }
 
-func (p *ProductHandlers) CreateNewDeposit() fiber.Handler {
+func (h *ProductHandlers) CreateNewDeposit() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := CreateDepositRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
@@ -48,7 +61,8 @@ func (p *ProductHandlers) CreateNewDeposit() fiber.Handler {
 		}
 
 		createDeposit := req.toCreateDeposit()
-		did, err := p.productUC.CreateNewDeposit(c.Context(), createDeposit)
+		createDeposit.UserID = claims.UserID
+		did, err := h.productUC.CreateNewDeposit(c.Context(), createDeposit)
 		if err != nil {
 			return err
 		}
@@ -59,14 +73,14 @@ func (p *ProductHandlers) CreateNewDeposit() fiber.Handler {
 	}
 }
 
-func (p *ProductHandlers) GetCards() fiber.Handler {
+func (h *ProductHandlers) GetCards() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		req := GetCardsRequest{}
-		if err := c.BodyParser(&req); err != nil {
-			return err
+		claims, ok := c.Locals("claims").(models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
 		}
 
-		cards, err := p.productUC.GetManyCards(c.Context(), req.UserID)
+		cards, err := h.productUC.GetManyCards(c.Context(), claims.UserID)
 		if err != nil {
 			return err
 		}
@@ -77,14 +91,14 @@ func (p *ProductHandlers) GetCards() fiber.Handler {
 	}
 }
 
-func (p *ProductHandlers) GetDeposits() fiber.Handler {
+func (h *ProductHandlers) GetDeposits() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		req := GetDepositsRequest{}
-		if err := c.BodyParser(&req); err != nil {
-			return err
+		claims, ok := c.Locals("claims").(models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
 		}
 
-		deposits, err := p.productUC.GetManyDeposits(c.Context(), req.UserID)
+		deposits, err := h.productUC.GetManyDeposits(c.Context(), claims.UserID)
 		if err != nil {
 			return err
 		}
@@ -95,14 +109,19 @@ func (p *ProductHandlers) GetDeposits() fiber.Handler {
 	}
 }
 
-func (p *ProductHandlers) DeleteCard() fiber.Handler {
+func (h *ProductHandlers) DeleteCard() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := DeleteCardRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
 		}
 
-		if err := p.productUC.DeleteCard(c.Context(), req.CardID); err != nil {
+		if err := h.productUC.DeleteCard(c.Context(), req.CardID, claims.UserID); err != nil {
 			return err
 		}
 		return c.JSON(fiber.Map{
@@ -111,14 +130,19 @@ func (p *ProductHandlers) DeleteCard() fiber.Handler {
 	}
 }
 
-func (p *ProductHandlers) DeleteDeposit() fiber.Handler {
+func (h *ProductHandlers) DeleteDeposit() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := DeleteDepositRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
 		}
 
-		if err := p.productUC.DeleteDeposit(c.Context(), req.DepositID); err != nil {
+		if err := h.productUC.DeleteDeposit(c.Context(), req.DepositID, claims.UserID); err != nil {
 			return err
 		}
 		return c.JSON(fiber.Map{

@@ -4,6 +4,7 @@ import (
 	"bankApp1/internal/balances/balancesUsecase"
 	"bankApp1/internal/models"
 	"context"
+	"errors"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 )
 
@@ -108,9 +109,17 @@ func (u *ProductsUC) GetManyDeposits(ctx context.Context, uid models.UserID) (mo
 	return deposits, nil
 }
 
-func (u *ProductsUC) DeleteCard(ctx context.Context, cid models.CardID) error {
+func (u *ProductsUC) DeleteCard(ctx context.Context, cid models.CardID, uid models.UserID) error {
 	err := u.manager.Do(ctx, func(ctx context.Context) error {
-		err := u.cardUC.Delete(ctx, cid)
+		ok, err := u.isItUserCard(ctx, cid, uid)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("not enough rights")
+		}
+
+		err = u.cardUC.Delete(ctx, cid)
 		if err != nil {
 			return err
 		}
@@ -128,9 +137,17 @@ func (u *ProductsUC) DeleteCard(ctx context.Context, cid models.CardID) error {
 	return nil
 }
 
-func (u *ProductsUC) DeleteDeposit(ctx context.Context, did models.DepositID) error {
+func (u *ProductsUC) DeleteDeposit(ctx context.Context, did models.DepositID, uid models.UserID) error {
 	err := u.manager.Do(ctx, func(ctx context.Context) error {
-		err := u.depositUC.Delete(ctx, did)
+		ok, err := u.isItUserDeposit(ctx, did, uid)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("not enough rights")
+		}
+
+		err = u.depositUC.Delete(ctx, did)
 		if err != nil {
 			return err
 		}
@@ -146,4 +163,28 @@ func (u *ProductsUC) DeleteDeposit(ctx context.Context, did models.DepositID) er
 		return err
 	}
 	return nil
+}
+
+func (u *ProductsUC) isItUserCard(ctx context.Context, cid models.CardID, uid models.UserID) (bool, error) {
+	card, err := u.cardUC.Get(ctx, models.CardFilter{IDs: []models.CardID{cid}})
+	if err != nil {
+		return false, err
+	}
+
+	if card.UserID == uid {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (u *ProductsUC) isItUserDeposit(ctx context.Context, did models.DepositID, uid models.UserID) (bool, error) {
+	card, err := u.depositUC.Get(ctx, models.DepositFilter{IDs: []models.DepositID{did}})
+	if err != nil {
+		return false, err
+	}
+
+	if card.UserID == uid {
+		return true, nil
+	}
+	return false, nil
 }

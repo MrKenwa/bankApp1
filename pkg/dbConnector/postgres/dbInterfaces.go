@@ -1,4 +1,4 @@
-package dbConnector
+package postgres
 
 import (
 	"database/sql"

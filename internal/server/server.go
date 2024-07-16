@@ -2,10 +2,11 @@ package server
 
 import (
 	"bankApp1/config"
-	"bankApp1/pkg/dbConnector"
+	"bankApp1/pkg/dbConnector/postgres"
 	"fmt"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/gofiber/fiber/v2"
+	"github.com/redis/go-redis/v9"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,15 +15,17 @@ import (
 type Server struct {
 	fiber    *fiber.App
 	cfg      *config.Config
-	postgres dbConnector.PostgresDB
+	postgres postgres.PostgresDB
+	redis    *redis.Client
 	manager  *manager.Manager
 }
 
-func NewServer(cfg *config.Config, postgres dbConnector.PostgresDB, manager *manager.Manager) *Server {
+func NewServer(cfg *config.Config, postgres postgres.PostgresDB, redis *redis.Client, manager *manager.Manager) *Server {
 	return &Server{
 		fiber:    fiber.New(),
 		cfg:      cfg,
 		postgres: postgres,
+		redis:    redis,
 		manager:  manager,
 	}
 }
