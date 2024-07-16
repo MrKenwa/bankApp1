@@ -25,6 +25,10 @@ func (s *Server) MapHandlers() {
 	userRedisRepo := redis.NewUserRedisRepo(s.cfg, s.redis)
 	userUC := userUsecase.NewUserUC(s.manager, &userRepo, userRedisRepo)
 	userHandlers := userHttp.NewUserHandlers(s.cfg, &userUC)
+	cardRepo := cardsRepo.NewCardRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
+	depositRepo := depositsRepo.NewDepositRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
+	cardsUC := cardsUsecase.NewCardUC(s.manager, &cardRepo)
+	depositsUC := depositsUsecase.NewDepositsUC(s.manager, depositRepo)
 
 	mw := middleware.NewMDWManager(userRedisRepo)
 	userGroup := s.fiber.Group("users")
@@ -33,19 +37,15 @@ func (s *Server) MapHandlers() {
 	balanceRepo := postgres.NewBalanceRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
 	operationRepo := operationsRepo.NewOperationRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
 	balanceUC := balancesUsecase.NewBalanceUC(s.manager, &balanceRepo)
-	paymentUC := paymentUsecase.NewPaymentUC(s.manager, &balanceUC, &operationRepo)
+	paymentUC := paymentUsecase.NewPaymentUC(s.manager, &balanceUC, &operationRepo, &cardsUC, &depositsUC)
 	paymentHandlers := paymentDelivery.NewPaymentHandlers(paymentUC)
 
 	paymentGroup := s.fiber.Group("payment")
-	paymentDelivery.MapPaymentRoutes(paymentGroup, paymentHandlers)
+	paymentDelivery.MapPaymentRoutes(paymentGroup, paymentHandlers, mw)
 
-	cardRepo := cardsRepo.NewCardRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
-	depositRepo := depositsRepo.NewDepositRepo(trmsqlx.DefaultCtxGetter, &s.postgres)
-	cardsUC := cardsUsecase.NewCardUC(s.manager, &cardRepo)
-	depositsUC := depositsUsecase.NewDepositsUC(s.manager, depositRepo)
 	productUC := productsUsecase.NewProductsUC(s.manager, &cardsUC, &depositsUC, &balanceUC)
 	productHandlers := productsDelivery.NewProductHandlers(&productUC)
 
 	productGroup := s.fiber.Group("product")
-	productsDelivery.MapProductsRoutes(productGroup, &productHandlers)
+	productsDelivery.MapProductsRoutes(productGroup, &productHandlers, mw)
 }

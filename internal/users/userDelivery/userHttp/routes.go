@@ -7,6 +7,6 @@ import (
 
 func MapUserRoutes(group fiber.Router, h Handlers, mw *middleware.MDWManager) {
 	group.Post("/register", h.Register())
-	group.Get("/login", h.Login())
-	group.Get("/getOwn", mw.AuthedMiddleware(), h.GetOwn())
+	group.Post("/login", h.Login())
+	group.Post("/getOwn", mw.AuthedMiddleware(), h.GetOwn())
 }

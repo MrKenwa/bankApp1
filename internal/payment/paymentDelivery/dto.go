@@ -10,7 +10,6 @@ type SendRequest struct {
 	SenderBalanceID   models.BalanceID `json:"sender_balance_id"`
 	ReceiverBalanceID models.BalanceID `json:"receiver_balance_id"`
 	Amount            int64            `json:"amount"`
-	OperationType     string           `json:"operation_type"`
 }
 
 func (r SendRequest) checkData() error {
@@ -31,21 +30,19 @@ func (r SendRequest) toSendData() *paymentUsecase.SendData {
 		SendBalanceID:    &r.SenderBalanceID,
 		ReceiveBalanceID: &r.ReceiverBalanceID,
 		Amount:           r.Amount,
-		OpType:           r.OperationType,
+		OpType:           "transfer",
 	}
 }
 
 type PayRequest struct {
-	BalanceID     models.BalanceID `json:"balance_id"`
-	Amount        int64            `json:"amount"`
-	OperationType string           `json:"operation_type"`
+	BalanceID models.BalanceID `json:"balance_id"`
+	Amount    int64            `json:"amount"`
 }
 
 func (r PayRequest) toPayData() *paymentUsecase.PayData {
 	return &paymentUsecase.PayData{
 		BalanceID: r.BalanceID,
 		Amount:    r.Amount,
-		OpType:    r.OperationType,
 	}
 }
 
@@ -54,9 +51,6 @@ func (r PayRequest) checkData() error {
 		return errors.New("invalid data")
 	}
 	if r.BalanceID <= 0 {
-		return errors.New("invalid data")
-	}
-	if r.OperationType == "" {
 		return errors.New("invalid data")
 	}
 	return nil

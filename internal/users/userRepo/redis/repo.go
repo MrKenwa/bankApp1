@@ -38,7 +38,7 @@ func (r *UserRedisRepo) SetUserSession(ctx context.Context, sessionID string, cl
 func (r *UserRedisRepo) GetUserSession(ctx context.Context, sessionID string) (models.Claims, error) {
 	var claimsJson []byte
 
-	if err := r.db.Get(ctx, sessionID).Err(); err != nil {
+	if err := r.db.Get(ctx, sessionID).Scan(&claimsJson); err != nil {
 		return models.Claims{}, err
 	}
 

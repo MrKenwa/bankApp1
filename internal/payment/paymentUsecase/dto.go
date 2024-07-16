@@ -7,6 +7,7 @@ import (
 )
 
 type SendData struct {
+	UserID           models.UserID
 	SendBalanceID    *models.BalanceID
 	ReceiveBalanceID *models.BalanceID
 	Amount           int64
@@ -34,6 +35,7 @@ func (s *SendData) toOperation() models.Operation {
 }
 
 type PayData struct {
+	UserID    models.UserID
 	BalanceID models.BalanceID
 	Amount    int64
 	OpType    string

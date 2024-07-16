@@ -23,7 +23,9 @@ func (h *UserHandlers) Register() fiber.Handler {
 		if err := c.BodyParser(&req); err != nil {
 			return err
 		}
-
+		if !req.checkData() {
+			return errors.New("invalid data")
+		}
 		regUser := req.toRegisterUser()
 
 		uid, err := h.userUC.Register(c.Context(), regUser)
@@ -69,7 +71,7 @@ func (h *UserHandlers) Login() fiber.Handler {
 
 func (h *UserHandlers) GetOwn() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		claims, ok := c.Locals("claims").(*models.Claims)
+		claims, ok := c.Locals("claims").(models.Claims)
 		if !ok {
 			return errors.New("cannot get claims")
 		}
@@ -79,8 +81,16 @@ func (h *UserHandlers) GetOwn() fiber.Handler {
 			return err
 		}
 
+		userResp := getUserResponse{
+			UserID:     user.UserID,
+			Name:       user.Name,
+			Lastname:   user.Lastname,
+			Patronymic: user.Patronymic,
+			Email:      user.Email,
+		}
+
 		return c.JSON(fiber.Map{
-			"data": user,
+			"data": userResp,
 		})
 	}
 }
