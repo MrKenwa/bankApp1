@@ -16,6 +16,11 @@ func NewPaymentHandlers(paymentUC PaymentUC) *PaymentHandlers {
 
 func (p *PaymentHandlers) Send() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := SendRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
@@ -26,11 +31,6 @@ func (p *PaymentHandlers) Send() fiber.Handler {
 			return err
 		}
 
-		claims, ok := c.Locals("claims").(*models.Claims)
-		if !ok {
-			return errors.New("cannot get claims")
-		}
-
 		sendData := req.toSendData()
 		sendData.UserID = claims.UserID
 		opid, err := p.paymentUC.Send(c.Context(), sendData)
@@ -38,8 +38,8 @@ func (p *PaymentHandlers) Send() fiber.Handler {
 			return err
 		}
 		return c.JSON(fiber.Map{
-			"message":     "Money sent successfully",
-			"operationID": opid,
+			"message": "Money sent successfully",
+			"data":    opid,
 		})
 	}
 }
@@ -58,18 +58,24 @@ func (p *PaymentHandlers) PayIn() fiber.Handler {
 
 		payData := req.toPayData()
 		opid, err := p.paymentUC.PayIn(c.Context(), payData)
+		payData.OpType = "pay in"
 		if err != nil {
 			return err
 		}
 		return c.JSON(fiber.Map{
-			"message":     "Money sent successfully",
-			"operationID": opid,
+			"message": "Money sent successfully",
+			"data":    opid,
 		})
 	}
 }
 
 func (p *PaymentHandlers) PayOut() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := PayRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
@@ -80,20 +86,16 @@ func (p *PaymentHandlers) PayOut() fiber.Handler {
 			return err
 		}
 
-		claims, ok := c.Locals("claims").(*models.Claims)
-		if !ok {
-			return errors.New("cannot get claims")
-		}
-
 		payData := req.toPayData()
 		payData.UserID = claims.UserID
+		payData.OpType = "pay out"
 		opid, err := p.paymentUC.PayOut(c.Context(), payData)
 		if err != nil {
 			return err
 		}
 		return c.JSON(fiber.Map{
-			"message":     "Money sent successfully",
-			"operationID": opid,
+			"message": "Money sent successfully",
+			"data":    opid,
 		})
 	}
 }

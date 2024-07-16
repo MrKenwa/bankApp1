@@ -21,6 +21,10 @@ func (h *UserHandlers) Register() fiber.Handler {
 			return err
 		}
 
+		if !req.checkData() {
+			return errors.New("invalid data")
+		}
+
 		regUser := req.toRegisterUser()
 
 		uid, err := h.userUC.Register(c.Context(), regUser)
@@ -29,7 +33,7 @@ func (h *UserHandlers) Register() fiber.Handler {
 		}
 		return c.JSON(fiber.Map{
 			"message": "User was registered",
-			"userID":  uid,
+			"data":    uid,
 		})
 	}
 }
@@ -66,8 +70,16 @@ func (h *UserHandlers) GetOwn() fiber.Handler {
 			return err
 		}
 
+		userResp := getUserResponse{
+			UserID:     user.UserID,
+			Name:       user.Name,
+			Lastname:   user.Lastname,
+			Patronymic: user.Patronymic,
+			Email:      user.Email,
+		}
+
 		return c.JSON(fiber.Map{
-			"data": user,
+			"data": userResp,
 		})
 	}
 }

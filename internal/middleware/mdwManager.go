@@ -52,7 +52,7 @@ func (m *MDWManager) AuthedMiddleware() fiber.Handler {
 		}
 
 		if claims.ExpiresAt.Before(time.Now()) && c.Path() != "/users/refresh" {
-			return errors.New("time out, unauthorized")
+			return errors.New("token is expired")
 		}
 
 		c.Locals("claims", claims)

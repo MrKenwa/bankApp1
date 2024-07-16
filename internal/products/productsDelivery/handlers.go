@@ -17,6 +17,11 @@ func NewProductHandlers(productUC ProductsUC) ProductHandlers {
 
 func (p *ProductHandlers) CreateNewCard() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := CreateCardRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
@@ -24,11 +29,6 @@ func (p *ProductHandlers) CreateNewCard() fiber.Handler {
 
 		if err := req.checkData(); err != nil {
 			return err
-		}
-
-		claims, ok := c.Locals("claims").(*models.Claims)
-		if !ok {
-			return errors.New("cannot get claims")
 		}
 
 		createCard := req.toCreateCard()
@@ -46,6 +46,11 @@ func (p *ProductHandlers) CreateNewCard() fiber.Handler {
 
 func (p *ProductHandlers) CreateNewDeposit() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
 		req := CreateDepositRequest{}
 		if err := c.BodyParser(&req); err != nil {
 			return err
@@ -53,11 +58,6 @@ func (p *ProductHandlers) CreateNewDeposit() fiber.Handler {
 
 		if err := req.checkData(); err != nil {
 			return err
-		}
-
-		claims, ok := c.Locals("claims").(*models.Claims)
-		if !ok {
-			return errors.New("cannot get claims")
 		}
 
 		createDeposit := req.toCreateDeposit()
@@ -111,14 +111,14 @@ func (p *ProductHandlers) GetDeposits() fiber.Handler {
 
 func (p *ProductHandlers) DeleteCard() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		req := DeleteCardRequest{}
-		if err := c.BodyParser(&req); err != nil {
-			return err
-		}
-
 		claims, ok := c.Locals("claims").(*models.Claims)
 		if !ok {
 			return errors.New("cannot get claims")
+		}
+
+		req := DeleteCardRequest{}
+		if err := c.BodyParser(&req); err != nil {
+			return err
 		}
 
 		if err := p.productUC.DeleteCard(c.Context(), req.CardID, claims.UserID); err != nil {
@@ -132,14 +132,14 @@ func (p *ProductHandlers) DeleteCard() fiber.Handler {
 
 func (p *ProductHandlers) DeleteDeposit() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		req := DeleteDepositRequest{}
-		if err := c.BodyParser(&req); err != nil {
-			return err
-		}
-
 		claims, ok := c.Locals("claims").(*models.Claims)
 		if !ok {
 			return errors.New("cannot get claims")
+		}
+
+		req := DeleteDepositRequest{}
+		if err := c.BodyParser(&req); err != nil {
+			return err
 		}
 
 		if err := p.productUC.DeleteDeposit(c.Context(), req.DepositID, claims.UserID); err != nil {
