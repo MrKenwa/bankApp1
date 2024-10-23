@@ -1,6 +1,6 @@
 {
   "Server": {
-    "Host": "localhost:9000",
+    "Host": "0.0.0.0:8888",
     "Domain": "127.0.0.1"
   },
   "Postgres": {

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 54321
+      POSTGRES_DB: bank_db
+    volumes:
+      - ./internal/migrations:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6380:6379"
+    networks:
+      - app-network
+
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgres://postgres:54321@db:5432/bank_db?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
+    ports:
+      - "8888:8888"
+
+volumes:
+  db_data:
+
+networks:
+  app-network:

@@ -24,6 +24,17 @@ CREATE TABLE IF NOT EXISTS cards(
     CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS balances(
+    balance_id BIGSERIAL PRIMARY KEY,
+    card_id BIGINT,
+    deposit_id BIGINT,
+    amount BIGINT CHECK ( amount >= 0 ) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP,
+    CONSTRAINT card_fk FOREIGN KEY (card_id) REFERENCES cards(card_id),
+    CONSTRAINT deposit_fk FOREIGN KEY (deposit_id) REFERENCES deposits(deposit_id)
+);
+
 CREATE TABLE IF NOT EXISTS operations(
     operation_id BIGSERIAL PRIMARY KEY,
     sender_balance_id BIGINT,
@@ -44,17 +55,6 @@ CREATE TABLE IF NOT EXISTS deposits(
     created_at TIMESTAMP NOT NULL,
     deleted_at TIMESTAMP,
     CONSTRAINT user_fk FOREIGN KEY(user_id) REFERENCES users(id)
-);
-
-CREATE TABLE IF NOT EXISTS balances(
-    balance_id BIGSERIAL PRIMARY KEY,
-    card_id BIGINT,
-    deposit_id BIGINT,
-    amount BIGINT CHECK ( amount >= 0 ) NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL,
-    deleted_at TIMESTAMP,
-    CONSTRAINT card_fk FOREIGN KEY (card_id) REFERENCES cards(card_id),
-    CONSTRAINT deposit_fk FOREIGN KEY (deposit_id) REFERENCES deposits(deposit_id)
 );
 -- +goose StatementEnd
 

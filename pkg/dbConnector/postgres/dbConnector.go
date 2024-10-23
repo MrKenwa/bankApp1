@@ -8,11 +8,11 @@ import (
 )
 
 func ConnectToDB(cfg *config.Config) (*sqlx.DB, error) {
-	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		cfg.Postgres.Host,
-		cfg.Postgres.Port,
+	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.Postgres.User,
 		cfg.Postgres.Password,
+		cfg.Postgres.Host,
+		cfg.Postgres.Port,
 		cfg.Postgres.DBName,
 	)
 	db, err := sqlx.Open("postgres", url)
