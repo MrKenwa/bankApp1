@@ -94,3 +94,11 @@ func (h *UserHandlers) GetOwn() fiber.Handler {
 		})
 	}
 }
+
+func (h *UserHandlers) Hello() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"data": "hello! I'm alive!",
+		})
+	}
+}

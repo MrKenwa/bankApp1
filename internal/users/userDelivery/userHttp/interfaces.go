@@ -18,5 +18,6 @@ type (
 		Register() fiber.Handler
 		Login() fiber.Handler
 		GetOwn() fiber.Handler
+		Hello() fiber.Handler
 	}
 )
