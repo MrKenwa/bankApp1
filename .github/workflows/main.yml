@@ -88,5 +88,5 @@ jobs:
 
       - name: Run tests with Docker Compose
         run: |
-          docker compose -f docker-compose.yaml exec app go test ./...  # Запуск тестов в контейнере
-          docker compose -f docker-compose.yaml down  # Остановка контейнеров после тестов
+          docker compose -f docker-compose.yaml exec app go test ./...
+          docker compose -f docker-compose.yaml down
