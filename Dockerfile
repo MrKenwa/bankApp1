@@ -11,6 +11,4 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o bankApp1 ./cmd
 
-EXPOSE 9000
-
 CMD ["./bankApp1"]

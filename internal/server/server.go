@@ -34,6 +34,11 @@ func (s *Server) Run() error {
 	s.MapHandlers()
 
 	go func() {
+		s.fiber.Post("/hello", func(c *fiber.Ctx) error {
+			return c.JSON(fiber.Map{
+				"data": "hello! I'm alive!",
+			})
+		})
 		if err := s.fiber.Listen(s.cfg.Server.Host); err != nil {
 			panic(err)
 		}
