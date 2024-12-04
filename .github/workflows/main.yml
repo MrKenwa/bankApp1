@@ -1,4 +1,4 @@
-name: pipeline for bankApp1
+name: Pipeline for bankApp1
 
 on:
   push:
@@ -45,10 +45,48 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Docker image
-        run: docker compose -f ./docker-compose.yaml build
+        run: docker compose -f docker-compose.yaml build
+
+      - name: Run Docker containers
+        run: docker compose -f docker-compose.yaml up -d 
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      postgres:
+        image: postgres:16.4
+        ports:
+          - 5431:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 54321
+          POSTGRES_DB: bank_db
+        options: --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+
+      redis:
+        image: redis:7.0
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.22.9'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run Docker containers
+        run: docker compose -f docker-compose.yaml up -d
 
       - name: Run tests with Docker Compose
         run: |
-          docker compose -f ./docker-compose.yaml up -d
-          docker compose -f ./docker-compose.yaml exec app go test ./...
-          docker compose -f ./docker-compose.yaml down
+          docker compose -f docker-compose.yaml exec app go test ./...  # Запуск тестов в контейнере
+          docker compose -f docker-compose.yaml down  # Остановка контейнеров после тестов
