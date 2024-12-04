@@ -1,0 +1,51 @@
+name: pipeline for bankApp1
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16.4
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 54321
+          POSTGRES_DB: bank_db
+        options: --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+
+      redis:
+        image: redis:7.0
+        ports:
+          - 6380:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.22'  # Замените на вашу версию Go
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build Docker image
+        run: docker-compose -f docker-compose.yml build
+
+      - name: Run tests with Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml up -d
+          docker-compose -f docker-compose.yml exec app go test ./...
+          docker-compose -f docker-compose.yml down
