@@ -16,7 +16,7 @@ jobs:
       postgres:
         image: postgres:16.4
         ports:
-          - 5432:5432
+          - 5431:5432
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 54321
@@ -36,7 +36,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.22'  # Замените на вашу версию Go
+          go-version: '1.22.9'
 
       - name: Install dependencies
         run: go mod download
