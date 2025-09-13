@@ -5,6 +5,8 @@ import (
 	"context"
 )
 
+//go:generate mockgen -source $GOFILE -destination contract_mocks_test.go -package $GOPACKAGE
+
 type (
 	BalanceUC interface {
 		Get(context.Context, models.BalanceFilter) (models.Balance, error)

@@ -4,18 +4,18 @@ import (
 	"bankApp1/internal/models"
 	"context"
 	"errors"
-	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 )
 
 type PaymentUC struct {
-	manager   *manager.Manager
+	manager   trm.Manager
 	opRepo    OperationRepo
 	balanceUC BalanceUC
 	cardUC    CardsUC
 	depositUC DepositsUC
 }
 
-func NewPaymentUC(manager *manager.Manager, balanceUC BalanceUC, oRepo OperationRepo, cardUC CardsUC, depUC DepositsUC) *PaymentUC {
+func NewPaymentUC(manager trm.Manager, balanceUC BalanceUC, oRepo OperationRepo, cardUC CardsUC, depUC DepositsUC) *PaymentUC {
 	return &PaymentUC{
 		manager:   manager,
 		balanceUC: balanceUC,
