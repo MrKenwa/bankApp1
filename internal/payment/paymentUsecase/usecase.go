@@ -26,7 +26,7 @@ func NewPaymentUC(manager trm.Manager, balanceUC BalanceUC, oRepo OperationRepo,
 }
 
 func (u *PaymentUC) Send(ctx context.Context, sendData *SendData) (models.OperationID, error) {
-	var opid models.OperationID
+	var opID models.OperationID
 	if err := u.manager.Do(ctx, func(ctx context.Context) error {
 		senderFilter, receiverFilter := sendData.toBalanceFilter()
 		senderBalance, err := u.balanceUC.Get(ctx, senderFilter)
@@ -55,7 +55,7 @@ func (u *PaymentUC) Send(ctx context.Context, sendData *SendData) (models.Operat
 		}
 
 		operation := sendData.toOperation()
-		opid, err = u.opRepo.Create(ctx, operation)
+		opID, err = u.opRepo.Create(ctx, operation)
 		if err != nil {
 			return err
 		}
@@ -64,7 +64,7 @@ func (u *PaymentUC) Send(ctx context.Context, sendData *SendData) (models.Operat
 	}); err != nil {
 		return -1, err
 	}
-	return opid, nil
+	return opID, nil
 }
 
 func (u *PaymentUC) PayIn(ctx context.Context, payData *PayData) (models.OperationID, error) {

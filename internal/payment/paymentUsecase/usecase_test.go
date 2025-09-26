@@ -2,7 +2,9 @@ package paymentUsecase
 
 import (
 	"bankApp1/internal/models"
+	"bankApp1/pkg/utils/pointer"
 	"context"
+	"errors"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/mock"
 	deprecated_gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -42,56 +44,145 @@ func TestPaymentUC_Send(t *testing.T) {
 		WantErr bool
 	}{
 		{
-			Name: "Successful Increase case",
+			Name: "Successful case",
 			Prepare: func(mockRepos *MockRepos) {
 				mockRepos.manager.EXPECT().Do(deprecated_gomock.Any(), deprecated_gomock.Any()).Times(1).
 					DoAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 						return fn(ctx)
 					})
-				mockRepos.balanceUC.EXPECT().Increase(ctx, models.BalanceFilter{}, 1000).Times(1).Return(nil)
-				mockRepos.balanceUC.EXPECT().Decrease(ctx, models.BalanceFilter{}, 1000).Times(1).Return(nil)
-				mockRepos.opRepo.EXPECT().Create(ctx, models.Operation{}).Times(1).Return(1, nil)
-				mockRepos.cardUC.EXPECT().Get(ctx, models.CardFilter{}).Times(1).Return(models.Card{}, nil)
-				mockRepos.depositUC.EXPECT().Get(ctx, models.DepositFilter{}).Times(1).Return(models.Deposit{}, nil)
+				mockRepos.balanceUC.EXPECT().Increase(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{11},
+				}, int64(500)).Times(1).Return(nil)
+				mockRepos.balanceUC.EXPECT().Decrease(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{10},
+				}, int64(500)).Times(1).Return(nil)
+				mockRepos.opRepo.EXPECT().Create(gomock.Any(), models.Operation{
+					SenderBalanceID:   pointer.Ptr(models.BalanceID(10)),
+					ReceiverBalanceID: pointer.Ptr(models.BalanceID(11)),
+					Amount:            500,
+					OperationType:     "transfer",
+				}).Times(1).Return(models.OperationID(101), nil)
+				mockRepos.cardUC.EXPECT().Get(gomock.Any(), models.CardFilter{
+					IDs: []models.CardID{6},
+				}).Times(1).Return(models.Card{
+					CardID: 6,
+					UserID: 1,
+				}, nil)
+				mockRepos.balanceUC.EXPECT().Get(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{10},
+				}).Times(1).Return(models.Balance{
+					BalanceID: 10,
+					CardID:    pointer.Ptr(models.CardID(6)),
+					DepositID: nil,
+					Amount:    5000,
+				}, nil)
+				mockRepos.balanceUC.EXPECT().Get(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{10},
+				}).Times(1).Return(models.Balance{
+					BalanceID: 10,
+					CardID:    pointer.Ptr(models.CardID(6)),
+					DepositID: nil,
+					Amount:    5000,
+				}, nil)
 			},
 			Args: args{
 				ctx: ctx,
 				sendData: &SendData{
 					UserID:           1,
-					SendBalanceID:    nil,
-					ReceiveBalanceID: nil,
-					Amount:           100,
-					OpType:           "hui",
+					SendBalanceID:    pointer.Ptr(models.BalanceID(10)),
+					ReceiveBalanceID: pointer.Ptr(models.BalanceID(11)),
+					Amount:           500,
+					OpType:           "transfer",
 				},
 			},
-			Want:    want{opID: 1, err: nil},
+			Want:    want{opID: 101, err: nil},
 			WantErr: false,
 		},
 		{
-			Name: "Successful Decrease case",
+			Name: "Error not enough rights",
 			Prepare: func(mockRepos *MockRepos) {
 				mockRepos.manager.EXPECT().Do(deprecated_gomock.Any(), deprecated_gomock.Any()).Times(1).
 					DoAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 						return fn(ctx)
 					})
-				mockRepos.balanceUC.EXPECT().Increase(ctx, models.BalanceFilter{}, 1000).Times(1).Return(nil)
-				mockRepos.balanceUC.EXPECT().Decrease(ctx, models.BalanceFilter{}, 1000).Times(1).Return(nil)
-				mockRepos.opRepo.EXPECT().Create(ctx, models.Operation{}).Times(1).Return(1, nil)
-				mockRepos.cardUC.EXPECT().Get(ctx, models.CardFilter{}).Times(1).Return(models.Card{}, nil)
-				mockRepos.depositUC.EXPECT().Get(ctx, models.DepositFilter{}).Times(1).Return(models.Deposit{}, nil)
+				mockRepos.cardUC.EXPECT().Get(gomock.Any(), models.CardFilter{
+					IDs: []models.CardID{6},
+				}).Times(1).Return(models.Card{
+					CardID: 6,
+					UserID: 35,
+				}, nil)
+				mockRepos.balanceUC.EXPECT().Get(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{10},
+				}).Times(1).Return(models.Balance{
+					BalanceID: 10,
+					CardID:    pointer.Ptr(models.CardID(6)),
+					DepositID: nil,
+					Amount:    5000,
+				}, nil)
+				mockRepos.balanceUC.EXPECT().Get(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{10},
+				}).Times(1).Return(models.Balance{
+					BalanceID: 10,
+					CardID:    pointer.Ptr(models.CardID(6)),
+					DepositID: nil,
+					Amount:    5000,
+				}, nil)
 			},
 			Args: args{
 				ctx: ctx,
 				sendData: &SendData{
 					UserID:           1,
-					SendBalanceID:    nil,
-					ReceiveBalanceID: nil,
-					Amount:           100,
-					OpType:           "hui",
+					SendBalanceID:    pointer.Ptr(models.BalanceID(10)),
+					ReceiveBalanceID: pointer.Ptr(models.BalanceID(11)),
+					Amount:           500,
+					OpType:           "transfer",
 				},
 			},
-			Want:    want{opID: 1, err: nil},
-			WantErr: false,
+			Want:    want{opID: -1, err: errors.New("not enough rights")},
+			WantErr: true,
+		},
+		{
+			Name: "Error not enough money",
+			Prepare: func(mockRepos *MockRepos) {
+				mockRepos.manager.EXPECT().Do(deprecated_gomock.Any(), deprecated_gomock.Any()).Times(1).
+					DoAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+						return fn(ctx)
+					})
+				mockRepos.cardUC.EXPECT().Get(gomock.Any(), models.CardFilter{
+					IDs: []models.CardID{6},
+				}).Times(1).Return(models.Card{
+					CardID: 6,
+					UserID: 1,
+				}, nil)
+				mockRepos.balanceUC.EXPECT().Get(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{10},
+				}).Times(1).Return(models.Balance{
+					BalanceID: 10,
+					CardID:    pointer.Ptr(models.CardID(6)),
+					DepositID: nil,
+					Amount:    100,
+				}, nil)
+				mockRepos.balanceUC.EXPECT().Get(gomock.Any(), models.BalanceFilter{
+					IDs: []models.BalanceID{10},
+				}).Times(1).Return(models.Balance{
+					BalanceID: 10,
+					CardID:    pointer.Ptr(models.CardID(6)),
+					DepositID: nil,
+					Amount:    100,
+				}, nil)
+			},
+			Args: args{
+				ctx: ctx,
+				sendData: &SendData{
+					UserID:           1,
+					SendBalanceID:    pointer.Ptr(models.BalanceID(10)),
+					ReceiveBalanceID: pointer.Ptr(models.BalanceID(11)),
+					Amount:           500,
+					OpType:           "transfer",
+				},
+			},
+			Want:    want{opID: -1, err: errors.New("not enough money")},
+			WantErr: true,
 		},
 	}
 
@@ -126,7 +217,8 @@ func TestPaymentUC_Send(t *testing.T) {
 
 			got, err := u.Send(tt.Args.ctx, tt.Args.sendData)
 			if tt.WantErr {
-				require.ErrorIs(t, tt.Want.err, err)
+				require.Error(t, err)
+				require.EqualError(t, err, tt.Want.err.Error())
 			} else {
 				require.NoError(t, err)
 			}

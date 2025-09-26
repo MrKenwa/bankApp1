@@ -30,7 +30,6 @@ func (s *SendData) toOperation() models.Operation {
 		ReceiverBalanceID: s.ReceiveBalanceID,
 		Amount:            s.Amount,
 		OperationType:     s.OpType,
-		CreatedAt:         time.Now(),
 	}
 }
 
